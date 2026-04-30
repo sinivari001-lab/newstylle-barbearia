@@ -6785,6 +6785,17 @@
       var notesMap = {};
       notes.forEach(function(n) { notesMap[n.customer_phone] = n; });
 
+      // Load subscriptions + plans for CRM
+      var subs = [], plans = [];
+      try { var r2 = await supabaseClient.from('subscriptions').select('*').in('status', ['active','pending']); subs = r2.data || []; } catch(e) {}
+      try { var r3 = await supabaseClient.from('plans').select('*'); plans = r3.data || []; } catch(e) {}
+      var plansMap = {};
+      plans.forEach(function(p) { plansMap[p.id] = p; });
+      var subsMap = {};
+      subs.forEach(function(s) { if (!subsMap[s.customer_phone]) subsMap[s.customer_phone] = s; });
+      window._crmSubsMap = subsMap;
+      window._crmPlansMap = plansMap;
+
       // Build client map
       var clients = {};
       bookings.forEach(function(b) {
@@ -6942,17 +6953,29 @@
         else if (c.visits === 0) badge += '<span class="crm-badge" style="background:rgba(33,150,243,0.15);color:#2196f3;">Agendado</span>';
         else badge += '<span class="crm-badge new">Novo</span>';
         if (c.visits > 0 && c.lastVisit < thirtyStr) badge += '<span class="crm-badge inactive">Inativo</span>';
+        // Plan badge
+        var clientSub = window._crmSubsMap ? window._crmSubsMap[c.phone] : null;
+        var planInfo = clientSub && window._crmPlansMap ? window._crmPlansMap[clientSub.plan_id] : null;
+        if (planInfo) {
+          badge += '<span class="crm-badge" style="background:rgba(156,39,176,0.15);color:#9c27b0;">📋 ' + adminEsc(planInfo.name) + '</span>';
+        }
         var initials = c.name.split(' ').map(function(w) { return w[0]; }).join('').substring(0, 2).toUpperCase();
         var favService = Object.entries(c.services).sort(function(a, b) { return b[1] - a[1]; })[0];
         var daysSince = c.lastVisit ? Math.floor((new Date() - new Date(c.lastVisit)) / 86400000) : null;
         var timeLabel = c.visits === 0 ? 'Aguardando atendimento' : (daysSince !== null ? daysSince + 'd atras' : 'Sem visitas');
         var metaText = c.visits === 0 ? '<span>Agendamento pendente</span>' : '<span>' + c.visits + ' cortes</span><span>R$ ' + c.total + ' gasto</span><span>' + timeLabel + '</span>';
+        var offerBtn = '';
+        if (!clientSub && c.visits >= 1) {
+          var firstName = c.name.split(' ')[0];
+          var offerMsg = encodeURIComponent('Oi ' + firstName + '! Aqui é da NewStylee Barbearia. Temos planos mensais de corte com desconto especial pra clientes como você! Quer saber mais? 💈✂');
+          offerBtn = '<a href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '?text=' + offerMsg + '" target="_blank" onclick="event.stopPropagation()" style="padding:5px 10px;background:rgba(76,175,80,0.15);color:#4caf50;border:none;border-radius:6px;font-size:0.72rem;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;">Oferecer plano</a>';
+        }
         html += '<div class="crm-client" onclick="crmShowDetail(\'' + c.phone.replace(/'/g, "\\'") + '\')">' +
           '<div class="crm-avatar">' + initials + '</div>' +
           '<div class="crm-client-info"><div class="crm-client-name">' + adminEsc(c.name) + '</div>' +
           '<div class="crm-client-meta">' + metaText +
           (favService ? '<span>' + favService[0] + '</span>' : '') + '</div></div>' +
-          '<div class="crm-client-badges">' + badge + '</div></div>';
+          '<div class="crm-client-badges" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">' + badge + offerBtn + '</div></div>';
       });
       document.getElementById('crmList').innerHTML = html;
       document.getElementById('crmCount').textContent = '(' + filtered.length + ')';
@@ -6967,11 +6990,25 @@
       var favBarber = Object.entries(c.barbers).sort(function(a, b) { return b[1] - a[1]; })[0];
       var avgTicket = c.visits > 0 ? Math.round(c.total / c.visits) : 0;
 
+      // Plan info for detail
+      var detailSub = window._crmSubsMap ? window._crmSubsMap[phone] : null;
+      var detailPlan = detailSub && window._crmPlansMap ? window._crmPlansMap[detailSub.plan_id] : null;
+      var planHtml = '';
+      if (detailPlan) {
+        var remaining = (detailSub.total_cuts || 0) - (detailSub.used_cuts || 0);
+        planHtml = '<div style="margin-top:6px;padding:6px 12px;background:rgba(156,39,176,0.1);border-radius:6px;font-size:0.8rem;color:#9c27b0;font-weight:600;">📋 ' + adminEsc(detailPlan.name) + ' · ' + remaining + ' cortes restantes</div>';
+      } else if (c.visits >= 1) {
+        var ofFirstName = c.name.split(' ')[0];
+        var ofMsg = encodeURIComponent('Oi ' + ofFirstName + '! Aqui é da NewStylee Barbearia. Temos planos mensais de corte com desconto especial pra clientes como você! Quer saber mais? 💈✂');
+        planHtml = '<a href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '?text=' + ofMsg + '" target="_blank" style="display:inline-block;margin-top:6px;padding:6px 14px;background:rgba(76,175,80,0.15);color:#4caf50;border-radius:6px;font-size:0.8rem;font-weight:600;text-decoration:none;">Oferecer plano via WhatsApp</a>';
+      }
+
       document.getElementById('crmDetailHeader').innerHTML =
         '<div class="crm-detail-avatar">' + initials + '</div>' +
         '<div><div style="font-weight:700;font-size:1.1rem;">' + adminEsc(c.name) + '</div>' +
         '<div style="font-size:0.82rem;color:var(--text-muted);">' + c.phone + '</div>' +
-        (favBarber ? '<div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">Barbeiro favorito: <strong>' + favBarber[0] + '</strong></div>' : '') + '</div>';
+        (favBarber ? '<div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">Barbeiro favorito: <strong>' + favBarber[0] + '</strong></div>' : '') +
+        planHtml + '</div>';
 
       var cycleText = c.avgCycle > 0 ? c.avgCycle + 'd' : '-';
       var nextText = c.nextExpected ? c.nextExpected : '-';
