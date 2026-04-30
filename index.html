@@ -1404,7 +1404,8 @@
 
     /* ===== FINANCEIRO DASHBOARD ===== */
     .fin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; padding: 20px 24px; }
-    .fin-card { background: var(--dark-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; position: relative; overflow: hidden; }
+    .fin-card { background: var(--dark-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 16px; text-align: center; position: relative; overflow: hidden; transition: transform 0.15s, box-shadow 0.15s; }
+    .fin-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
     .fin-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
     .fin-card.fc-green::before { background: #4caf50; }
     .fin-card.fc-red::before { background: #f44336; }
@@ -1412,10 +1413,10 @@
     .fin-card.fc-gold::before { background: #ffc107; }
     .fin-card.fc-purple::before { background: #9c27b0; }
     .fin-card.fc-orange::before { background: #ff9800; }
-    .fin-card-icon { font-size: 1.6rem; margin-bottom: 8px; }
-    .fin-card-value { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; margin-bottom: 4px; }
-    .fin-card-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .fin-card-sub { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+    .fin-card-icon { font-size: 1.6rem; margin-bottom: 10px; opacity: 0.7; }
+    .fin-card-value { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.5px; }
+    .fin-card-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+    .fin-card-sub { font-size: 0.68rem; color: var(--text-muted); margin-top: 6px; opacity: 0.7; }
     .fin-section { padding: 0 24px 24px; }
     .fin-section-title { font-family: var(--font-display); font-size: 1.1rem; color: var(--red); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
     .fin-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.88rem; }
@@ -1454,11 +1455,12 @@
     .fin-commission-table input[type="number"] { width: 60px; padding: 6px 8px; background: var(--dark); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 0.85rem; text-align: center; outline: none; }
     .fin-commission-table input[type="number"]:focus { border-color: var(--red); }
     .fin-pay-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
-    .fin-pay-card { background: var(--dark); border: 1px solid var(--border); border-radius: 8px; padding: 14px; text-align: center; }
-    .fin-pay-icon { font-size: 1.3rem; margin-bottom: 6px; }
-    .fin-pay-value { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; }
-    .fin-pay-label { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; }
-    .fin-pay-pct { font-size: 0.68rem; color: var(--red); margin-top: 2px; }
+    .fin-pay-card { background: var(--dark); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; transition: transform 0.15s; }
+    .fin-pay-card:hover { transform: translateY(-1px); }
+    .fin-pay-icon { font-size: 1.3rem; margin-bottom: 8px; opacity: 0.7; }
+    .fin-pay-value { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; letter-spacing: -0.3px; }
+    .fin-pay-label { font-size: 0.68rem; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .fin-pay-pct { font-size: 0.68rem; color: var(--red); margin-top: 2px; font-weight: 600; }
     @media (max-width: 600px) {
       .fin-grid { padding: 12px 16px; grid-template-columns: repeat(2, 1fr); }
       .fin-card-value { font-size: 1.3rem; }
@@ -3554,6 +3556,17 @@
     // Dashboard > Configuracoes > API > URL do projeto e chave anon/publica
     const SUPABASE_URL = 'https://adfylhgfpveeakegqqtu.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZnlsaGdmcHZlZWFrZWdxcXR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMjE3MTUsImV4cCI6MjA5MTY5NzcxNX0.aeFg8-V60L5y9urPBbLt7Gdkxfyr2F3TKyacBIw-K44';
+    // Format currency professionally: R$ 1.234,56
+    function fmtMoney(val) {
+      var n = Number(val) || 0;
+      return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    // Short format: R$ 1.234 (no decimals for display)
+    function fmtMoneyShort(val) {
+      var n = Number(val) || 0;
+      return n.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
     let supabaseClient = null;
     try {
       if (typeof supabase !== 'undefined') {
@@ -4718,7 +4731,7 @@
         document.getElementById('aTotal').textContent = active.length;
         document.getElementById('aPending').textContent = pending.length;
         document.getElementById('aConfirmed').textContent = confirmed.length;
-        document.getElementById('aRevenue').textContent = 'R$ ' + rev;
+        document.getElementById('aRevenue').textContent = 'R$ ' + fmtMoney(rev);
         // Save for PIX
         pixDayRevenue = rev;
         pixDayCount = active.length;
@@ -4756,7 +4769,7 @@
             h += '<div style="font-weight:700;font-size:0.95rem;color:' + (isToday ? 'var(--red)' : 'var(--text)') + ';">' + dayLabel + (isToday ? ' <span style="font-size:0.75rem;background:var(--red);color:#fff;padding:2px 8px;border-radius:10px;margin-left:6px;">HOJE</span>' : '') + '</div>';
             h += '<div style="display:flex;gap:16px;font-size:0.82rem;color:var(--text-muted);">';
             h += '<span>' + count + ' agendamento' + (count > 1 ? 's' : '') + '</span>';
-            h += '<span style="color:var(--red);font-weight:600;">R$ ' + rev + '</span>';
+            h += '<span style="color:var(--red);font-weight:600;">R$ ' + fmtMoney(rev) + '</span>';
             h += '</div></div>';
 
             // List bookings for this date
@@ -6346,11 +6359,11 @@
       var svgProfit = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>';
       var svgScissors = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"/></svg>';
       var svgBag = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>';
-      kpi += '<div class="fin-card fc-green"><div class="fin-card-icon">' + svgUp + '</div><div class="fin-card-value">R$ ' + recTotal.toLocaleString('pt-BR') + '</div><div class="fin-card-label">Receita Total</div><div class="fin-card-sub">Serviços R$' + recServicos + ' + Produtos R$' + recProdutos + '</div></div>';
-      kpi += '<div class="fin-card fc-red"><div class="fin-card-icon">' + svgDown + '</div><div class="fin-card-value">R$ ' + totalDesp.toLocaleString('pt-BR') + '</div><div class="fin-card-label">Despesas</div><div class="fin-card-sub">' + finExpenses.length + ' lancamentos</div></div>';
-      kpi += '<div class="fin-card ' + (lucro >= 0 ? 'fc-blue' : 'fc-red') + '"><div class="fin-card-icon">' + svgProfit + '</div><div class="fin-card-value">R$ ' + lucro.toLocaleString('pt-BR') + '</div><div class="fin-card-label">Lucro Liquido</div><div class="fin-card-sub">Margem: ' + margem + '%</div></div>';
-      kpi += '<div class="fin-card fc-gold"><div class="fin-card-icon">' + svgScissors + '</div><div class="fin-card-value">' + atend + '</div><div class="fin-card-label">Atendimentos</div><div class="fin-card-sub">Ticket medio: R$ ' + ticket + '</div></div>';
-      kpi += '<div class="fin-card fc-purple"><div class="fin-card-icon">' + svgBag + '</div><div class="fin-card-value">R$ ' + recProdutos.toLocaleString('pt-BR') + '</div><div class="fin-card-label">Vendas Produtos</div><div class="fin-card-sub">' + finSales.length + ' vendas</div></div>';
+      kpi += '<div class="fin-card fc-green"><div class="fin-card-icon">' + svgUp + '</div><div class="fin-card-value">R$ ' + fmtMoney(recTotal) + '</div><div class="fin-card-label">Receita Total</div><div class="fin-card-sub">Serviços R$ ' + fmtMoney(recServicos) + ' + Produtos R$ ' + fmtMoney(recProdutos) + '</div></div>';
+      kpi += '<div class="fin-card fc-red"><div class="fin-card-icon">' + svgDown + '</div><div class="fin-card-value">R$ ' + fmtMoney(totalDesp) + '</div><div class="fin-card-label">Despesas</div><div class="fin-card-sub">' + finExpenses.length + ' lançamento' + (finExpenses.length !== 1 ? 's' : '') + '</div></div>';
+      kpi += '<div class="fin-card ' + (lucro >= 0 ? 'fc-blue' : 'fc-red') + '"><div class="fin-card-icon">' + svgProfit + '</div><div class="fin-card-value">R$ ' + fmtMoney(lucro) + '</div><div class="fin-card-label">Lucro Líquido</div><div class="fin-card-sub">Margem: ' + margem + '%</div></div>';
+      kpi += '<div class="fin-card fc-gold"><div class="fin-card-icon">' + svgScissors + '</div><div class="fin-card-value">' + atend + '</div><div class="fin-card-label">Atendimentos</div><div class="fin-card-sub">Ticket médio: R$ ' + fmtMoney(ticket) + '</div></div>';
+      kpi += '<div class="fin-card fc-purple"><div class="fin-card-icon">' + svgBag + '</div><div class="fin-card-value">R$ ' + fmtMoney(recProdutos) + '</div><div class="fin-card-label">Vendas Produtos</div><div class="fin-card-sub">' + finSales.length + ' venda' + (finSales.length !== 1 ? 's' : '') + '</div></div>';
       document.getElementById('finKpiGrid').innerHTML = kpi;
 
       // Daily chart
@@ -6455,9 +6468,9 @@
       var svgIn = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M5 9l7-7 7 7"/></svg>';
       var svgOut = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V2M5 15l7 7 7-7"/></svg>';
       var svgBalance = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/><circle cx="17" cy="12" r="3"/></svg>';
-      cards += '<div class="fin-card fc-green"><div class="fin-card-icon">' + svgIn + '</div><div class="fin-card-value">R$ ' + totalIn.toLocaleString('pt-BR') + '</div><div class="fin-card-label">Total Entradas</div></div>';
-      cards += '<div class="fin-card fc-red"><div class="fin-card-icon">' + svgOut + '</div><div class="fin-card-value">R$ ' + totalOut.toLocaleString('pt-BR') + '</div><div class="fin-card-label">Total Saidas</div></div>';
-      cards += '<div class="fin-card ' + (saldo >= 0 ? 'fc-blue' : 'fc-red') + '"><div class="fin-card-icon">' + svgBalance + '</div><div class="fin-card-value">R$ ' + saldo.toLocaleString('pt-BR') + '</div><div class="fin-card-label">Saldo do Periodo</div></div>';
+      cards += '<div class="fin-card fc-green"><div class="fin-card-icon">' + svgIn + '</div><div class="fin-card-value">R$ ' + fmtMoney(totalIn) + '</div><div class="fin-card-label">Total Entradas</div></div>';
+      cards += '<div class="fin-card fc-red"><div class="fin-card-icon">' + svgOut + '</div><div class="fin-card-value">R$ ' + fmtMoney(totalOut) + '</div><div class="fin-card-label">Total Saídas</div></div>';
+      cards += '<div class="fin-card ' + (saldo >= 0 ? 'fc-blue' : 'fc-red') + '"><div class="fin-card-icon">' + svgBalance + '</div><div class="fin-card-value">R$ ' + fmtMoney(saldo) + '</div><div class="fin-card-label">Saldo do Período</div></div>';
       document.getElementById('finFluxoCards').innerHTML = cards;
 
       // Bars
@@ -6561,7 +6574,7 @@
         var pct = total > 0 ? Math.round((p[1] / total) * 100) : 0;
         var label = PAY_LABELS[p[0]] || (p[0] === 'servicos' ? 'Serviços (Agendamento)' : p[0]);
         var icon = PAY_ICONS[p[0]] || '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2s-.9 2-2 2h-4c-1.1 0-2 .9-2 2s.9 2 2 2h4"/></svg>';
-        html += '<div class="fin-row" style="padding:12px 0;"><span style="font-size:1.2rem;min-width:30px;">' + icon + '</span><span style="flex:1;font-weight:500;">' + label + '</span><div class="fin-bar-container"><div class="fin-bar" style="max-width:300px;"><div class="fin-bar-fill" style="width:' + pct + '%;background:' + COLORS[i % 8] + ';"></div></div><span style="font-size:0.75rem;color:var(--text-muted);min-width:40px;text-align:right;">' + pct + '%</span></div><span style="font-weight:700;min-width:100px;text-align:right;">R$ ' + p[1].toLocaleString('pt-BR') + '</span></div>';
+        html += '<div class="fin-row" style="padding:12px 0;"><span style="font-size:1.2rem;min-width:30px;">' + icon + '</span><span style="flex:1;font-weight:500;">' + label + '</span><div class="fin-bar-container"><div class="fin-bar" style="max-width:300px;"><div class="fin-bar-fill" style="width:' + pct + '%;background:' + COLORS[i % 8] + ';"></div></div><span style="font-size:0.75rem;color:var(--text-muted);min-width:40px;text-align:right;">' + pct + '%</span></div><span style="font-weight:700;min-width:100px;text-align:right;">R$ ' + fmtMoney(p[1]) + '</span></div>';
       });
       document.getElementById('finPayList').innerHTML = html || '<div style="text-align:center;color:var(--text-muted);padding:40px;">Sem dados de pagamento</div>';
     }
@@ -6702,24 +6715,24 @@
       var h = '<div style="max-width:700px;margin:0 auto;">';
       h += '<div style="text-align:center;margin-bottom:24px;"><span style="font-family:var(--font-display);font-size:1.1rem;">Periodo: </span><span style="color:var(--red);">' + rs[2] + '/' + rs[1] + '/' + rs[0] + ' a ' + re[2] + '/' + re[1] + '/' + re[0] + '</span></div>';
 
-      h += '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:8px;font-weight:600;font-size:0.88rem;"><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><path d="M12 2v20M5 9l7-7 7 7"/></svg>RECEITA BRUTA</span><span style="color:#4caf50;">R$ ' + recBruta + '</span></div>';
-      h += '<div style="display:flex;justify-content:space-between;padding:8px 16px 8px 32px;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.03);"><span>Receita de Serviços (' + contabBookings.length + ' atend.)</span><span>R$ ' + recServicos + '</span></div>';
-      h += '<div style="display:flex;justify-content:space-between;padding:8px 16px 8px 32px;font-size:0.82rem;"><span>Receita de Produtos (' + contabSales.length + ' vendas)</span><span>R$ ' + recProdutos + '</span></div></div>';
+      h += '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:8px;font-weight:600;font-size:0.88rem;"><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><path d="M12 2v20M5 9l7-7 7 7"/></svg>RECEITA BRUTA</span><span style="color:#4caf50;">R$ ' + fmtMoney(recBruta) + '</span></div>';
+      h += '<div style="display:flex;justify-content:space-between;padding:8px 16px 8px 32px;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.03);"><span>Receita de Serviços (' + contabBookings.length + ' atend.)</span><span>R$ ' + fmtMoney(recServicos) + '</span></div>';
+      h += '<div style="display:flex;justify-content:space-between;padding:8px 16px 8px 32px;font-size:0.82rem;"><span>Receita de Produtos (' + contabSales.length + ' vendas)</span><span>R$ ' + fmtMoney(recProdutos) + '</span></div></div>';
 
-      h += '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:8px;font-weight:600;font-size:0.88rem;"><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8"/></svg>(-) COMISSOES BARBEIROS</span><span style="color:#f44336;">- R$ ' + totalComm + '</span></div></div>';
+      h += '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:8px;font-weight:600;font-size:0.88rem;"><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8"/></svg>(-) COMISSÕES BARBEIROS</span><span style="color:#f44336;">- R$ ' + fmtMoney(totalComm) + '</span></div></div>';
 
-      h += '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;padding:12px 16px;background:rgba(33,150,243,0.08);border-radius:8px;font-weight:600;font-size:0.88rem;"><span>= RECEITA LIQUIDA</span><span style="color:#2196f3;font-weight:700;">R$ ' + recLiquida + '</span></div></div>';
+      h += '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;padding:12px 16px;background:rgba(33,150,243,0.08);border-radius:8px;font-weight:600;font-size:0.88rem;"><span>= RECEITA LÍQUIDA</span><span style="color:#2196f3;font-weight:700;">R$ ' + fmtMoney(recLiquida) + '</span></div></div>';
 
-      h += '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:8px;font-weight:600;font-size:0.88rem;"><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><path d="M12 22V2M5 15l7 7 7-7"/></svg>(-) DESPESAS OPERACIONAIS</span><span style="color:#f44336;">- R$ ' + totalDesp + '</span></div>';
+      h += '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:8px;font-weight:600;font-size:0.88rem;"><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><path d="M12 22V2M5 15l7 7 7-7"/></svg>(-) DESPESAS OPERACIONAIS</span><span style="color:#f44336;">- R$ ' + fmtMoney(totalDesp) + '</span></div>';
       Object.entries(despCats).sort(function(a,b) { return b[1]-a[1]; }).forEach(function(c) {
         var icon = CAT_ICONS[c[0]] || '';
-        h += '<div style="display:flex;justify-content:space-between;padding:8px 16px 8px 32px;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.03);"><span>' + icon + ' ' + c[0].charAt(0).toUpperCase() + c[0].slice(1) + '</span><span>- R$ ' + c[1] + '</span></div>';
+        h += '<div style="display:flex;justify-content:space-between;padding:8px 16px 8px 32px;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.03);"><span>' + icon + ' ' + c[0].charAt(0).toUpperCase() + c[0].slice(1) + '</span><span>- R$ ' + fmtMoney(c[1]) + '</span></div>';
       });
       h += '</div>';
 
       var resColor = lucroOp >= 0 ? '#4caf50' : '#f44336';
       var resIcon = lucroOp >= 0 ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="#4caf50" stroke="none"><circle cx="12" cy="12" r="10"/></svg>' : '<svg width="16" height="16" viewBox="0 0 24 24" fill="#f44336" stroke="none"><circle cx="12" cy="12" r="10"/></svg>';
-      h += '<div style="display:flex;justify-content:space-between;padding:14px 16px;font-weight:700;font-size:1rem;border-top:2px solid var(--red);border-bottom:2px solid var(--red);margin-top:8px;"><span>' + resIcon + ' RESULTADO (LUCRO/PREJUIZO)</span><span style="color:' + resColor + ';">R$ ' + lucroOp + ' (' + margem + '%)</span></div>';
+      h += '<div style="display:flex;justify-content:space-between;padding:14px 16px;font-weight:700;font-size:1rem;border-top:2px solid var(--red);border-bottom:2px solid var(--red);margin-top:8px;"><span>' + resIcon + ' RESULTADO (LUCRO/PREJUÍZO)</span><span style="color:' + resColor + ';">R$ ' + fmtMoney(lucroOp) + ' (' + margem + '%)</span></div>';
       h += '</div>';
 
       document.getElementById('contabDreContent').innerHTML = h;
