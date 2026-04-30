@@ -3129,7 +3129,7 @@
           <div id="gerMsg" style="font-size:0.82rem;margin-bottom:8px;display:none;"></div>
           <div style="overflow-x:auto;">
             <table class="fin-commission-table" id="gerTable">
-              <thead><tr><th>Nome</th><th>Senha</th><th>Comissão %</th><th>Ativo</th><th>Ações</th></tr></thead>
+              <thead><tr><th>Foto</th><th>Nome</th><th>Senha</th><th>Comissão %</th><th>Ativo</th><th>Ações</th></tr></thead>
               <tbody id="gerBody"></tbody>
             </table>
           </div>
@@ -3564,7 +3564,7 @@
     const ALL_SLOTS = ['08:00','08:40','09:20','10:00','10:40','11:20','12:00','12:40','13:20','14:00','14:40','15:20','16:00','16:40','17:20','18:00','18:40','19:20','20:00'];
 
     // Mapa de fotos dos barbeiros
-    const BARBER_PHOTOS = {
+    var BARBER_PHOTOS = {
       'Inoque': 'img/barbeiro1.jpg',
       'Henrique': 'img/barbeiro2.jpg',
       'Jeferson': 'img/barbeiro3.jpg',
@@ -3572,6 +3572,22 @@
       'Gaucho': 'img/barbeiro5.jpg',
       'Rafael': 'img/barbeiro6.jpg'
     };
+
+    // Load saved photos from Supabase config (overrides defaults)
+    async function loadSavedPhotos() {
+      if (!supabaseClient) return;
+      try {
+        var { data: cfgRow } = await supabaseClient.from('customer_notes').select('notes').eq('customer_phone', '__CONFIG__').single();
+        if (cfgRow && cfgRow.notes) {
+          var cfg = JSON.parse(cfgRow.notes);
+          if (cfg.barber_photos) {
+            Object.keys(cfg.barber_photos).forEach(function(name) {
+              BARBER_PHOTOS[name] = cfg.barber_photos[name];
+            });
+          }
+        }
+      } catch(e) {}
+    }
 
     // Carregar barbeiros ordenados por meritocracia (mais atendimentos primeiro)
     async function loadBarberGrid() {
@@ -3647,8 +3663,8 @@
       }
     }
 
-    // Carregar barbeiros ao iniciar
-    loadBarberGrid();
+    // Carregar fotos salvas e depois barbeiros
+    loadSavedPhotos().then(function() { loadBarberGrid(); });
 
     // Buscar horários ocupados de um barbeiro em uma data
     async function fetchBookedSlots(barber, date) {
@@ -6019,10 +6035,25 @@
       var commMap = {};
       comms.forEach(function(c) { commMap[c.barber] = c.percentage; });
 
+      // Load saved photos from config
+      var savedPhotos = {};
+      try {
+        var { data: cfgRow } = await supabaseClient.from('customer_notes').select('notes').eq('customer_phone', '__CONFIG__').single();
+        if (cfgRow && cfgRow.notes) {
+          var cfg = JSON.parse(cfgRow.notes);
+          savedPhotos = cfg.barber_photos || {};
+        }
+      } catch(e) {}
+
       var html = '';
       barbers.forEach(function(b) {
         var pct = commMap[b.name] !== undefined ? commMap[b.name] : 40;
+        var photoUrl = savedPhotos[b.name] || BARBER_PHOTOS[b.name] || '';
+        var photoPreview = photoUrl
+          ? '<img src="' + photoUrl + '" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">'
+          : '<div style="width:48px;height:48px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:700;color:var(--text-muted);">' + b.name[0] + '</div>';
         html += '<tr>';
+        html += '<td style="text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;gap:4px;">' + photoPreview + '<label style="cursor:pointer;padding:2px 8px;background:rgba(33,150,243,0.15);color:#2196f3;border-radius:4px;font-size:0.65rem;font-weight:600;"><input type="file" accept="image/*" data-barber="' + adminEsc(b.name) + '" class="ger-photo-input" style="display:none;" onchange="gerUploadPhoto(this)">Trocar</label></div></td>';
         html += '<td><input type="text" value="' + adminEsc(b.name) + '" data-id="' + b.id + '" class="ger-name" style="width:120px;padding:6px 8px;background:var(--dark);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:0.85rem;outline:none;"></td>';
         html += '<td><input type="text" value="' + adminEsc(b.password) + '" data-id="' + b.id + '" class="ger-pass" style="width:80px;padding:6px 8px;background:var(--dark);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:0.85rem;outline:none;"></td>';
         html += '<td><input type="number" value="' + pct + '" min="0" max="100" data-barber="' + b.name + '" class="ger-comm" style="width:60px;padding:6px 8px;background:var(--dark);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:0.85rem;text-align:center;outline:none;"></td>';
@@ -6032,6 +6063,46 @@
       });
       document.getElementById('gerBody').innerHTML = html;
     }
+
+    // Upload photo: convert to base64 and save to config
+    window.gerUploadPhoto = function(input) {
+      var barberName = input.getAttribute('data-barber');
+      var file = input.files[0];
+      if (!file) return;
+      if (file.size > 500000) { alert('Foto muito grande! Use uma imagem menor que 500KB.'); return; }
+      var reader = new FileReader();
+      reader.onload = async function(e) {
+        // Resize image to max 200x200 for storage efficiency
+        var img = new Image();
+        img.onload = async function() {
+          var canvas = document.createElement('canvas');
+          var size = 200;
+          canvas.width = size; canvas.height = size;
+          var ctx = canvas.getContext('2d');
+          var scale = Math.max(size / img.width, size / img.height);
+          var w = img.width * scale, h = img.height * scale;
+          ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+          var dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+          // Save to config
+          try {
+            var { data: cfgRow } = await supabaseClient.from('customer_notes').select('notes').eq('customer_phone', '__CONFIG__').single();
+            var cfg = {};
+            if (cfgRow && cfgRow.notes) cfg = JSON.parse(cfgRow.notes);
+            if (!cfg.barber_photos) cfg.barber_photos = {};
+            cfg.barber_photos[barberName] = dataUrl;
+            BARBER_PHOTOS[barberName] = dataUrl;
+            await supabaseClient.from('customer_notes').update({ notes: JSON.stringify(cfg) }).eq('customer_phone', '__CONFIG__');
+            gerLoadBarbers();
+            if (typeof loadBarberGrid === 'function') loadBarberGrid();
+            if (window.loadWiBarberGrid) loadWiBarberGrid();
+            alert('Foto de ' + barberName + ' atualizada!');
+          } catch(err) { alert('Erro ao salvar foto: ' + err.message); }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
 
     window.gerSaveBarber = async function(id) {
       if (!supabaseClient) return;
