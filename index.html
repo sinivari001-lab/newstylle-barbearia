@@ -7031,7 +7031,7 @@
 
       // Simples Nacional Anexo III - aliquota progressiva por faixa de faturamento anual
       var faixasSimples = [
-        { limite: 180000, aliquota: 6.0, deducao: 0 },
+        { limite: 180000, aliquota: 4.0, deducao: 0 },
         { limite: 360000, aliquota: 11.2, deducao: 9360 },
         { limite: 720000, aliquota: 13.5, deducao: 17640 },
         { limite: 1800000, aliquota: 16.0, deducao: 35640 },
@@ -7043,7 +7043,7 @@
         if (recAnual <= faixasSimples[fi].limite) { faixaAtual = faixasSimples[fi]; break; }
         faixaAtual = faixasSimples[fi];
       }
-      var aliquotaEfetiva = recAnual > 0 ? ((recAnual * faixaAtual.aliquota / 100 - faixaAtual.deducao) / recAnual * 100) : 6.0;
+      var aliquotaEfetiva = recAnual > 0 ? ((recAnual * faixaAtual.aliquota / 100 - faixaAtual.deducao) / recAnual * 100) : 4.0;
       aliquotaEfetiva = Math.max(0, aliquotaEfetiva);
       var impostoMensal = Math.round(recTotal * aliquotaEfetiva / 100);
       var impostoAnual = Math.round(recAnual * aliquotaEfetiva / 100);
