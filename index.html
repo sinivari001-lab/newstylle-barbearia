@@ -6787,15 +6787,17 @@
         }
         var c = clients[key];
         if (b.customer_name && b.customer_name.length > c.name.length) c.name = b.customer_name;
-        c.visits++;
-        var price = b.service_price || 0;
-        if (b.extras && Array.isArray(b.extras)) b.extras.forEach(function(e) { price += (e.price || 0); });
-        c.total += price;
-        c.services[b.service] = (c.services[b.service] || 0) + 1;
-        c.barbers[b.barber] = (c.barbers[b.barber] || 0) + 1;
-        if (!c.lastVisit || b.date > c.lastVisit) c.lastVisit = b.date;
-        if (!c.firstVisit || b.date < c.firstVisit) c.firstVisit = b.date;
         c.bookings.push(b);
+        if (b.status === 'completed') {
+          c.visits++;
+          var price = b.service_price || 0;
+          if (b.extras && Array.isArray(b.extras)) b.extras.forEach(function(e) { price += (e.price || 0); });
+          c.total += price;
+          c.services[b.service] = (c.services[b.service] || 0) + 1;
+          c.barbers[b.barber] = (c.barbers[b.barber] || 0) + 1;
+          if (!c.lastVisit || b.date > c.lastVisit) c.lastVisit = b.date;
+          if (!c.firstVisit || b.date < c.firstVisit) c.firstVisit = b.date;
+        }
       });
 
       // Calculate average cycle per client
@@ -7028,8 +7030,10 @@
         if (!clients[key]) clients[key] = { name: b.customer_name, phone: b.customer_phone, visits: 0, lastVisit: null };
         var c = clients[key];
         if (b.customer_name && b.customer_name.length > c.name.length) c.name = b.customer_name;
-        c.visits++;
-        if (!c.lastVisit || b.date > c.lastVisit) c.lastVisit = b.date;
+        if (b.status === 'completed') {
+          c.visits++;
+          if (!c.lastVisit || b.date > c.lastVisit) c.lastVisit = b.date;
+        }
       });
 
       var list = Object.values(clients).sort(function(a, b) { return b.visits - a.visits; });
