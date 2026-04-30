@@ -4189,11 +4189,11 @@
           roleLabel.textContent = 'RECEPCAO';
           roleLabel.style.background = 'rgba(33,150,243,0.15)';
           roleLabel.style.color = '#2196f3';
-          // Reception: walk-in + vendas tabs only
-          ['tabAgenda','tabWalkin','tabPdv'].forEach(function(id) {
+          // Reception: agenda + walk-in + vendas + ranking + remarketing + crm + fidelidade
+          ['tabAgenda','tabWalkin','tabPdv','tabRank','tabRmk','tabCrm','tabLoyalty'].forEach(function(id) {
             var el = document.getElementById(id); if (el) el.style.display = '';
           });
-          ['tabRmk','tabRank','tabCrm','tabLoyalty','tabPlans','tabFin','tabContab','tabGerenciar','tabDesemp'].forEach(function(id) {
+          ['tabPlans','tabFin','tabContab','tabGerenciar','tabDesemp'].forEach(function(id) {
             var el = document.getElementById(id); if (el) el.style.display = 'none';
           });
           document.querySelector('.admin-tabs').style.display = '';
