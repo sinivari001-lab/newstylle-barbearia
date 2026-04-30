@@ -5611,13 +5611,19 @@
         var toast = document.createElement('div');
         var bg = type === 'cancel' ? 'linear-gradient(135deg, #d32f2f, #f44336)' : 'linear-gradient(135deg, #2e7d32, #4caf50)';
         var icon = type === 'cancel' ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>' : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>';
-        var existingToasts = document.querySelectorAll('.ns-alert-toast');
-        var topOffset = 20 + existingToasts.length * 90;
+        // Container fixo pra empilhar toasts
+        var container = document.getElementById('nsAlertContainer');
+        if (!container) {
+          container = document.createElement('div');
+          container.id = 'nsAlertContainer';
+          container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:12px;pointer-events:none;';
+          document.body.appendChild(container);
+        }
         toast.className = 'ns-alert-toast';
-        toast.style.cssText = 'position:fixed;top:' + topOffset + 'px;right:20px;z-index:99999;background:' + bg + ';color:#fff;padding:16px 20px;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);max-width:360px;animation:slideInRight 0.5s cubic-bezier(0.34,1.56,0.64,1);display:flex;gap:12px;align-items:flex-start;cursor:pointer;';
+        toast.style.cssText = 'background:' + bg + ';color:#fff;padding:16px 20px;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);max-width:360px;animation:slideInRight 0.5s cubic-bezier(0.34,1.56,0.64,1);display:flex;gap:12px;align-items:flex-start;cursor:pointer;pointer-events:auto;';
         toast.innerHTML = '<div style="flex-shrink:0;margin-top:2px;">' + icon + '</div><div><div style="font-weight:700;font-size:0.95rem;margin-bottom:4px;">' + title + '</div><div style="font-size:0.82rem;opacity:0.9;">' + msg + '</div></div>';
         toast.onclick = function() { toast.style.animation = 'slideOutRight 0.4s ease forwards'; setTimeout(function() { toast.remove(); }, 400); };
-        document.body.appendChild(toast);
+        container.appendChild(toast);
         // Pulse sutil depois de entrar
         setTimeout(function() { if (toast.parentNode) toast.style.animation = 'toastPulse 2s ease-in-out infinite'; }, 600);
         // Auto-remove after 3min com animação de saída
