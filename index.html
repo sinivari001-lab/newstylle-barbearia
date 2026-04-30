@@ -1383,10 +1383,11 @@
     .ag-cell-booking.ag-birthday { box-shadow: 0 0 0 2px #ffc107 inset; }
     .ag-cell-booking .ag-bk-name { font-weight: 700; font-size: 0.78rem; letter-spacing: 0.2px; }
     .ag-cell-booking .ag-bk-svc { font-size: 0.68rem; opacity: 0.7; }
-    .ag-legend { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; padding: 10px 16px; margin-bottom: 10px; background: linear-gradient(135deg, var(--dark-card) 0%, rgba(18,18,22,1) 100%); border: 1px solid var(--border); border-radius: var(--radius); }
-    .ag-legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; padding: 5px 10px; border-radius: var(--radius-sm); transition: all 0.2s; user-select: none; }
-    .ag-legend-item:hover { background: rgba(255,255,255,0.04); }
-    .ag-legend-item.active { color: var(--text); font-weight: 600; background: rgba(255,255,255,0.03); }
+    .ag-legend { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 10px 16px; margin-bottom: 10px; background: linear-gradient(135deg, var(--dark-card) 0%, rgba(18,18,22,1) 100%); border: 1px solid var(--border); border-radius: var(--radius); }
+    .ag-legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; padding: 6px 14px; border-radius: 20px; transition: all 0.2s; user-select: none; border: 1px solid var(--border); }
+    .ag-legend-item:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); }
+    .ag-legend-item.active { color: var(--text); font-weight: 600; background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); }
+    .ag-legend-item:not(.active) { opacity: 0.45; }
     .ag-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
     .ag-now-line { position: absolute; left: 0; right: 0; height: 2px; background: var(--red); z-index: 1; pointer-events: none; }
     .ag-now-dot { position: absolute; left: -5px; width: 10px; height: 10px; border-radius: 50%; background: var(--red); top: -4px; }
@@ -4504,7 +4505,7 @@
           { tab: 'agenda', el: 'tabAgenda', title: 'Aba Agenda', desc: 'Essa é a aba principal. Aqui você vê todos os agendamentos do dia organizados por barbeiro e horário.' },
           { tab: 'agenda', el: 'agGridDateLabel', title: 'Navegação de data', desc: 'Aqui mostra o dia que você está vendo. Clique nas setas < e > pra ir pro dia anterior ou próximo. O botão vermelho HOJE volta pro dia de hoje.' },
           { tab: 'agenda', el: 'aTotal', title: 'Resumo do dia', desc: 'Esses números mostram o total de agendamentos, quantos estão pendentes, quantos confirmados e o faturamento do dia.' },
-          { tab: 'agenda', el: 'agLegend', title: 'Cores dos agendamentos', desc: 'As cores significam o status: Amarelo = Pendente (ainda não confirmou), Verde = Confirmado, Azul = Concluído (já atendeu), Laranja = Aguardando aprovação.' },
+          { tab: 'agenda', el: 'agLegend', title: 'Filtros de Status', desc: 'Clique pra filtrar! Cada botão mostra/esconde agendamentos por status. Amarelo = Pendente, Verde = Confirmado, Azul = Concluído, Laranja = Aguardando. Clique em "Todos" pra ver tudo de novo. Filtros desativados ficam apagados.' },
           { tab: 'agenda', el: 'agGrid', title: 'Grade de horários', desc: 'Cada coluna é um barbeiro e cada linha é um horário de 40 minutos. Clique num quadrado colorido pra ver os detalhes do agendamento. Clique num quadrado vazio pra cadastrar um atendimento naquele horário.' },
           // === ALERTAS EM TEMPO REAL ===
           { tab: 'agenda', el: 'agGrid', title: 'Alertas em Tempo Real', desc: 'O sistema avisa na hora quando algo acontece! Se um cliente agendar, aparece um aviso VERDE com som no canto da tela. Se alguém cancelar, aparece um aviso VERMELHO. O aviso fica 3 minutos na tela e a agenda atualiza sozinha.', onShow: function() { setTimeout(function() { showAdminAlert('Novo agendamento!', 'João Silva agendou Corte às 14:00 (exemplo)', 'new'); }, 500); setTimeout(function() { showAdminAlert('Agendamento cancelado!', 'Maria cancelou Barba às 15:00 (exemplo)', 'cancel'); }, 1500); } },
@@ -4810,10 +4811,15 @@
       window.agFilterHidden = {};
 
       window.agFilterStatus = function(status) {
+        var allStatuses = ['pending', 'confirmed', 'completed', 'pending_approval'];
         if (status === 'all') {
+          // Se todos ativos, desativa todos. Se algum desativado, ativa todos.
           var allActive = Object.keys(agFilterHidden).length === 0;
-          if (allActive) return;
-          agFilterHidden = {};
+          if (allActive) {
+            allStatuses.forEach(function(s) { agFilterHidden[s] = true; });
+          } else {
+            agFilterHidden = {};
+          }
         } else {
           if (agFilterHidden[status]) delete agFilterHidden[status];
           else agFilterHidden[status] = true;
