@@ -4313,37 +4313,71 @@
           {
             icon: '📋',
             title: 'Agenda',
-            desc: 'Aqui você vê todos os agendamentos do dia. Pode filtrar por barbeiro e navegar entre os dias. Cada card mostra o cliente, serviço e horário.'
+            desc: 'A grade mostra todos os agendamentos do dia, organizados por barbeiro e horário.<br><br>' +
+              '<b>Setas &lt; &gt;</b> — Navega entre os dias<br>' +
+              '<b>Botão HOJE</b> — Volta pro dia atual<br>' +
+              '<b>Semana / Quinzena / Mês</b> — Vê agendamentos futuros<br>' +
+              '<b>Quadrado colorido</b> — Clique pra ver detalhes, confirmar ou concluir<br>' +
+              '<b>Quadrado vazio</b> — Clique pra cadastrar atendimento naquele horário<br>' +
+              '<b>CHOQUE (vermelho)</b> — Dois clientes no mesmo horário<br>' +
+              '<b>SEGUIDO (laranja)</b> — Atendimentos sem intervalo'
           },
           {
             icon: '➕',
             title: '+Atendimento',
-            desc: 'Use essa aba quando o cliente chegar sem agendamento (walk-in). Escolha o barbeiro, o serviço e registre o atendimento na hora.'
+            desc: 'Cadastre o cliente que chegou sem agendar pelo site.<br><br>' +
+              '<b>Nome e WhatsApp</b> — Dados do cliente (obrigatório)<br>' +
+              '<b>Serviço</b> — Escolha o corte ou combo. Combos ocupam 2 horários<br>' +
+              '<b>Barbeiro</b> — Clique na foto do barbeiro que vai atender<br>' +
+              '<b>Data e Horário</b> — Deixe "Agora" ou escolha um horário específico<br>' +
+              '<b>Cadastrar</b> — Salva e já aparece na grade da Agenda'
           },
           {
             icon: '📨',
             title: 'Remarketing',
-            desc: 'Aqui aparecem os clientes que não voltam há um tempo. Você pode mandar mensagem pelo WhatsApp para chamar eles de volta.'
+            desc: 'Clientes que não voltam há muito tempo aparecem aqui.<br><br>' +
+              '<b>Filtro de dias</b> — Escolha: 7, 15, 30, 45 ou 60+ dias sem voltar<br>' +
+              '<b>Buscar</b> — Carrega a lista de clientes inativos<br>' +
+              '<b>Botão WhatsApp</b> — Abre conversa direto com o cliente pra chamar de volta<br>' +
+              '<b>Dica:</b> Use essa aba toda semana pra manter os clientes voltando!'
           },
           {
             icon: '🏆',
             title: 'Ranking',
-            desc: 'Mostra qual barbeiro atendeu mais e quais serviços são os mais vendidos. Ótimo para acompanhar o desempenho da equipe.'
+            desc: 'Acompanhe o desempenho de cada barbeiro.<br><br>' +
+              '<b>Período</b> — Diário, semanal ou mensal<br>' +
+              '<b>Atendimentos</b> — Quantos clientes cada barbeiro atendeu<br>' +
+              '<b>Faturamento</b> — Quanto cada barbeiro faturou<br>' +
+              '<b>Serviços mais vendidos</b> — Quais cortes e combos saem mais'
           },
           {
             icon: '💰',
-            title: 'Vendas',
-            desc: 'Registre vendas de produtos (pomada, shampoo, etc). Escolha o produto, a forma de pagamento e pronto — tudo fica registrado.'
+            title: 'Vendas (PDV)',
+            desc: 'Registre vendas de produtos da barbearia.<br><br>' +
+              '<b>Produto</b> — Nome do produto (pomada, shampoo, etc.)<br>' +
+              '<b>Valor</b> — Preço do produto<br>' +
+              '<b>Barbeiro</b> — Quem vendeu (conta na comissão dele)<br>' +
+              '<b>Pagamento</b> — Dinheiro, PIX, Débito ou Crédito<br>' +
+              '<b>Registrar</b> — Salva a venda no sistema'
           },
           {
             icon: '👥',
-            title: 'Clientes',
-            desc: 'Lista completa de todos os clientes. Veja o histórico, quantas vezes veio, quando foi a última visita e o serviço favorito.'
+            title: 'Clientes (CRM)',
+            desc: 'Todos os clientes que já vieram na barbearia.<br><br>' +
+              '<b>Busca</b> — Pesquise por nome ou telefone<br>' +
+              '<b>Visitas</b> — Quantas vezes o cliente já veio<br>' +
+              '<b>Última visita</b> — Quando foi o último corte<br>' +
+              '<b>Serviço favorito</b> — O que ele mais pede<br>' +
+              '<b>WhatsApp</b> — Abre conversa direto com o cliente'
           },
           {
             icon: '🎖️',
             title: 'Fidelidade',
-            desc: 'Programa de fidelidade: a cada X cortes, o cliente ganha um grátis. Aqui você acompanha quantos cortes cada cliente já fez.'
+            desc: 'Programa de fidelidade da barbearia.<br><br>' +
+              '<b>Como funciona:</b> A cada X cortes, o cliente ganha 1 grátis<br>' +
+              '<b>Progresso</b> — Mostra quantos cortes cada cliente já fez<br>' +
+              '<b>Resgate</b> — Quando completar, marque o corte grátis<br>' +
+              '<b>Dica:</b> Avise o cliente quantos cortes faltam — isso faz ele voltar!'
           }
         ];
 
