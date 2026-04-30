@@ -7087,11 +7087,13 @@
         var newBirthday = parseInt(document.getElementById('loyaltyBirthday').value) || 20;
         if (supabaseClient) {
           try {
-            await supabaseClient.from('customer_notes').upsert({
-              customer_phone: '__CONFIG__',
-              customer_name: 'site_config',
-              notes: JSON.stringify({ loyalty_target: newTarget, loyalty_birthday: newBirthday })
-            }, { onConflict: 'customer_phone' });
+            var cfgJson = JSON.stringify({ loyalty_target: newTarget, loyalty_birthday: newBirthday });
+            var { data: existing } = await supabaseClient.from('customer_notes').select('id').eq('customer_phone', '__CONFIG__').single();
+            if (existing) {
+              await supabaseClient.from('customer_notes').update({ notes: cfgJson }).eq('customer_phone', '__CONFIG__');
+            } else {
+              await supabaseClient.from('customer_notes').insert({ customer_phone: '__CONFIG__', customer_name: 'site_config', notes: cfgJson });
+            }
           } catch(e) { console.error('Config save error:', e); }
         }
         loyaltyLoad();
