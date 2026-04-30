@@ -4832,12 +4832,21 @@
           if (f === 'all') { el.classList.toggle('active', Object.keys(agFilterHidden).length === 0); }
           else { el.classList.toggle('active', !agFilterHidden[f]); }
         });
-        // Toggle visibility of bookings
+        // Toggle visibility — grid cells
         document.querySelectorAll('.ag-cell-booking').forEach(function(el) {
           var isHidden = (el.classList.contains('ag-pending') && agFilterHidden['pending'])
             || (el.classList.contains('ag-confirmed') && agFilterHidden['confirmed'])
             || (el.classList.contains('ag-completed') && agFilterHidden['completed'])
             || (el.classList.contains('ag-approval') && agFilterHidden['pending_approval']);
+          el.style.display = isHidden ? 'none' : '';
+        });
+        // Toggle visibility — list cards
+        document.querySelectorAll('.admin-card').forEach(function(el) {
+          var isHidden = (el.classList.contains('st-pending') && agFilterHidden['pending'])
+            || (el.classList.contains('st-confirmed') && agFilterHidden['confirmed'])
+            || (el.classList.contains('st-completed') && agFilterHidden['completed'])
+            || (el.classList.contains('st-cancelled') && agFilterHidden['cancelled'])
+            || (el.classList.contains('st-pending_approval') && agFilterHidden['pending_approval']);
           el.style.display = isHidden ? 'none' : '';
         });
       };
