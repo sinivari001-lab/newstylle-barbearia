@@ -5600,8 +5600,8 @@
         toast.innerHTML = '<div style="flex-shrink:0;margin-top:2px;">' + icon + '</div><div><div style="font-weight:700;font-size:0.95rem;margin-bottom:4px;">' + title + '</div><div style="font-size:0.82rem;opacity:0.9;">' + msg + '</div></div>';
         toast.onclick = function() { toast.remove(); };
         document.body.appendChild(toast);
-        // Auto-remove after 8s
-        setTimeout(function() { if (toast.parentNode) { toast.style.opacity = '0'; toast.style.transform = 'translateX(100px)'; toast.style.transition = 'all 0.4s'; setTimeout(function() { toast.remove(); }, 400); } }, 8000);
+        // Auto-remove after 3min
+        setTimeout(function() { if (toast.parentNode) { toast.style.opacity = '0'; toast.style.transform = 'translateX(100px)'; toast.style.transition = 'all 0.4s'; setTimeout(function() { toast.remove(); }, 400); } }, 180000);
       };
 
       // Auto-refresh a cada 30s
