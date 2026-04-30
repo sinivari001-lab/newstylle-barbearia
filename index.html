@@ -4696,8 +4696,9 @@
         const active = bks.filter(b => b.status !== 'cancelled');
         const pending = bks.filter(b => b.status === 'pending');
         const confirmed = bks.filter(b => b.status === 'confirmed');
+        const completed = bks.filter(b => b.status === 'completed');
         let rev = 0;
-        active.forEach(b => { rev += b.service_price; if (b.extras && Array.isArray(b.extras)) b.extras.forEach(e => rev += (e.price || 0)); });
+        completed.forEach(b => { rev += b.service_price; if (b.extras && Array.isArray(b.extras)) b.extras.forEach(e => rev += (e.price || 0)); });
         document.getElementById('aTotal').textContent = active.length;
         document.getElementById('aPending').textContent = pending.length;
         document.getElementById('aConfirmed').textContent = confirmed.length;
@@ -4733,7 +4734,7 @@
             var dayLabel = diasNomes[dObj.getDay()] + ', ' + dObj.getDate() + ' de ' + mesesNomes[dObj.getMonth()];
             var count = byDate[dt].length;
             var rev = 0;
-            byDate[dt].forEach(function(b) { rev += (b.service_price || 0); });
+            byDate[dt].forEach(function(b) { if (b.status === 'completed') rev += (b.service_price || 0); });
 
             h += '<div style="padding:12px 20px;margin-top:8px;background:' + (isToday ? 'rgba(230,57,70,0.08)' : 'rgba(255,255,255,0.03)') + ';border-left:4px solid ' + (isToday ? 'var(--red)' : 'var(--border)') + ';border-radius:4px;display:flex;align-items:center;justify-content:space-between;">';
             h += '<div style="font-weight:700;font-size:0.95rem;color:' + (isToday ? 'var(--red)' : 'var(--text)') + ';">' + dayLabel + (isToday ? ' <span style="font-size:0.75rem;background:var(--red);color:#fff;padding:2px 8px;border-radius:10px;margin-left:6px;">HOJE</span>' : '') + '</div>';
@@ -5629,7 +5630,7 @@
       async function rankLoad() {
         if (!supabaseClient) return;
         var days = parseInt(document.getElementById('rankPeriod').value);
-        var q = supabaseClient.from('bookings').select('*').in('status', ['completed', 'confirmed']);
+        var q = supabaseClient.from('bookings').select('*').eq('status', 'completed');
         if (days === 1) {
           var today = new Date().toISOString().split('T')[0];
           q = q.eq('date', today);
@@ -6094,7 +6095,7 @@
       // Fetch this barber's bookings for the month
       var { data: bookings } = await supabaseClient.from('bookings').select('*')
         .eq('barber', barberName)
-        .in('status', ['completed', 'confirmed'])
+        .eq('status', 'completed')
         .gte('date', monthStart).lte('date', today)
         .order('date', { ascending: false });
       bookings = bookings || [];
@@ -6226,7 +6227,7 @@
       if (expDateEl && !expDateEl.value) expDateEl.value = new Date().toISOString().split('T')[0];
       var r = finGetDateRange();
       var [bk, sl, ex, cm] = await Promise.all([
-        supabaseClient.from('bookings').select('*').in('status', ['completed','confirmed']).gte('date', r.start).lte('date', r.end).order('date'),
+        supabaseClient.from('bookings').select('*').eq('status', 'completed').gte('date', r.start).lte('date', r.end).order('date'),
         supabaseClient.from('sales').select('*').gte('created_at', r.start + 'T00:00:00').lte('created_at', r.end + 'T23:59:59').order('created_at'),
         supabaseClient.from('expenses').select('*').gte('date', r.start).lte('date', r.end).order('date', { ascending: false }),
         supabaseClient.from('commissions').select('*')
@@ -6565,7 +6566,7 @@
       if (!supabaseClient) return;
       var r = contabGetDateRange();
       var [bk, sl, ex, cm] = await Promise.all([
-        supabaseClient.from('bookings').select('*').in('status', ['completed','confirmed']).gte('date', r.start).lte('date', r.end).order('date'),
+        supabaseClient.from('bookings').select('*').eq('status', 'completed').gte('date', r.start).lte('date', r.end).order('date'),
         supabaseClient.from('sales').select('*').gte('created_at', r.start + 'T00:00:00').lte('created_at', r.end + 'T23:59:59'),
         supabaseClient.from('expenses').select('*').gte('date', r.start).lte('date', r.end),
         supabaseClient.from('commissions').select('*')
