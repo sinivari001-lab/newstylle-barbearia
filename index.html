@@ -5292,18 +5292,26 @@
         }
         actions += '<button onclick="window.open(\'https://wa.me/55' + ph + '\',\'_blank\')" style="padding:8px 16px;background:rgba(37,211,102,0.15);color:#25d366;border:none;border-radius:6px;cursor:pointer;font-weight:600;">WhatsApp</button>';
 
+        // Botão editar serviços (só se não estiver concluído ou cancelado)
+        var editBtn = '';
+        if (b.status === 'pending' || b.status === 'confirmed') {
+          editBtn = '<button id="popupEditSvc_' + b.id + '" onclick="agGridEditServices(\'' + b.id + '\')" style="padding:6px 14px;background:rgba(33,150,243,0.12);color:#2196f3;border:1px solid rgba(33,150,243,0.3);border-radius:6px;font-size:0.78rem;font-weight:600;cursor:pointer;margin-left:auto;">Editar serviços</button>';
+        }
+
         var popup = document.createElement('div');
+        popup.id = 'popupBooking_' + b.id;
         popup.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
         popup.onclick = function(e) { if (e.target === popup) popup.remove(); };
-        popup.innerHTML = '<div style="background:var(--dark-card);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:400px;width:90%;">'
+        popup.innerHTML = '<div style="background:var(--dark-card);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:400px;width:90%;max-height:90vh;overflow-y:auto;">'
           + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><span style="font-family:var(--font-display);font-size:1.2rem;">' + adminEsc(b.customer_name) + '</span><span style="font-size:0.75rem;padding:4px 10px;border-radius:12px;background:rgba(255,255,255,0.05);">' + statusLabel + '</span></div>'
-          + '<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;">Serviço: <strong style="color:var(--text);">' + adminEsc(b.service) + '</strong></div>'
+          + '<div style="display:flex;align-items:center;margin-bottom:4px;"><span style="font-size:0.85rem;color:var(--text-muted);">Serviço: <strong style="color:var(--text);">' + adminEsc(b.service) + '</strong></span>' + editBtn + '</div>'
           + (extras ? '<div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:4px;">Extras: ' + adminEsc(extras) + '</div>' : '')
+          + '<div id="popupSvcEditor_' + b.id + '"></div>'
           + '<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;">Barbeiro: <strong style="color:var(--text);">' + adminEsc(b.barber) + '</strong></div>'
           + '<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;">Horário: <strong style="color:var(--text);">' + (b.time_slot || '') + '</strong> — ' + (d||'') + '/' + (m||'') + '/' + (y||'') + '</div>'
           + '<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;">Tel: ' + adminEsc(b.customer_phone) + '</div>'
           + (function() { var pm = b.payment_method || ''; if (!pm && b.obs) { var m = b.obs.match(/\[PGTO:(\w+)\]/); if (m) pm = m[1]; } return pm ? '<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;">Pagamento: <strong style="color:#4caf50;">' + adminEsc(pm.toUpperCase()) + '</strong></div>' : ''; })()
-          + '<div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:var(--red);margin:12px 0;">R$ ' + total + '</div>'
+          + '<div id="popupTotal_' + b.id + '" style="font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:var(--red);margin:12px 0;">R$ ' + total + '</div>'
           + '<div style="display:flex;flex-wrap:wrap;gap:8px;">' + actions + '</div>'
           + '</div>';
         document.body.appendChild(popup);
@@ -5314,6 +5322,118 @@
             if (sel && res.data) res.data.forEach(function(br) { sel.innerHTML += '<option value="' + br.name + '">' + br.name + '</option>'; });
           });
         }
+      };
+
+      // Editar serviços de um agendamento
+      window.agGridEditServices = async function(id) {
+        if (!supabaseClient) return;
+        var { data } = await supabaseClient.from('bookings').select('*').eq('id', id).limit(1);
+        if (!data || !data.length) return;
+        var b = data[0];
+        var currentExtras = (b.extras && Array.isArray(b.extras)) ? b.extras : [];
+
+        // Serviços principais e extras disponíveis
+        var services = [
+          { name: 'Corte com máquina', price: 35 },
+          { name: 'Corte com tesoura', price: 45 },
+          { name: 'Barba', price: 30 },
+          { name: 'Manutenção', price: 18 },
+          { name: 'Corte + Barba', price: 58 },
+          { name: 'Corte + Barba + Pigmentacao', price: 75 },
+          { name: 'Corte + Barba + Relaxamento', price: 100 },
+          { name: 'Corte + Barba + Luzes', price: 100 },
+          { name: 'Corte + Barba + Platinacao', price: 170 }
+        ];
+        var extras = [
+          { name: 'Sobrancelha', price: 20 },
+          { name: 'Pigmentação capilar', price: 20 },
+          { name: 'Sobrancelha pigmentada', price: 35 },
+          { name: 'Barba pigmentada', price: 40 }
+        ];
+
+        var editor = document.getElementById('popupSvcEditor_' + id);
+        if (!editor) return;
+
+        // Se já está aberto, fechar
+        if (editor.innerHTML) { editor.innerHTML = ''; return; }
+
+        var h = '<div style="margin:12px 0;padding:12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;">';
+        h += '<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;font-weight:600;">Serviço principal:</div>';
+        h += '<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px;">';
+        services.forEach(function(s) {
+          var sel = s.name === b.service ? 'background:rgba(230,57,70,0.1);border-color:var(--red);' : '';
+          h += '<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:0.82rem;transition:all 0.15s;' + sel + '">';
+          h += '<input type="radio" name="editSvc_' + id + '" value="' + s.name + '" data-price="' + s.price + '" ' + (s.name === b.service ? 'checked' : '') + ' style="accent-color:var(--red);">';
+          h += '<span style="flex:1;">' + s.name + '</span><span style="font-weight:600;color:var(--red);">R$ ' + s.price + '</span></label>';
+        });
+        h += '</div>';
+
+        h += '<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;font-weight:600;">Extras (selecione quantos quiser):</div>';
+        h += '<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px;">';
+        extras.forEach(function(e) {
+          var isChecked = currentExtras.some(function(ce) { return ce.name === e.name; });
+          var sel = isChecked ? 'background:rgba(230,57,70,0.1);border-color:var(--red);' : '';
+          h += '<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:0.82rem;transition:all 0.15s;' + sel + '">';
+          h += '<input type="checkbox" class="editExtra_' + id + '" value="' + e.name + '" data-price="' + e.price + '" ' + (isChecked ? 'checked' : '') + ' style="accent-color:var(--red);">';
+          h += '<span style="flex:1;">' + e.name + '</span><span style="font-weight:600;color:var(--text-muted);">+ R$ ' + e.price + '</span></label>';
+        });
+        h += '</div>';
+
+        h += '<div style="display:flex;gap:8px;">';
+        h += '<button onclick="agGridSaveServices(\'' + id + '\')" style="flex:1;padding:10px;background:var(--red);color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.85rem;">Salvar alterações</button>';
+        h += '<button onclick="document.getElementById(\'popupSvcEditor_' + id + '\').innerHTML=\'\'" style="padding:10px 16px;background:rgba(255,255,255,0.06);color:var(--text-muted);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:0.85rem;">Cancelar</button>';
+        h += '</div></div>';
+
+        editor.innerHTML = h;
+
+        // Highlight on change
+        editor.querySelectorAll('input[type=radio], input[type=checkbox]').forEach(function(inp) {
+          inp.addEventListener('change', function() {
+            var label = inp.closest('label');
+            if (inp.type === 'radio') {
+              editor.querySelectorAll('input[name="editSvc_' + id + '"]').forEach(function(r) {
+                r.closest('label').style.background = '';
+                r.closest('label').style.borderColor = 'var(--border)';
+              });
+            }
+            if (inp.checked) {
+              label.style.background = 'rgba(230,57,70,0.1)';
+              label.style.borderColor = 'var(--red)';
+            } else {
+              label.style.background = '';
+              label.style.borderColor = 'var(--border)';
+            }
+          });
+        });
+      };
+
+      window.agGridSaveServices = async function(id) {
+        if (!supabaseClient) return;
+        var svcRadio = document.querySelector('input[name="editSvc_' + id + '"]:checked');
+        if (!svcRadio) { alert('Selecione o serviço principal.'); return; }
+        var newService = svcRadio.value;
+        var newPrice = parseInt(svcRadio.dataset.price);
+
+        var newExtras = [];
+        document.querySelectorAll('.editExtra_' + id + ':checked').forEach(function(chk) {
+          newExtras.push({ name: chk.value, price: parseInt(chk.dataset.price) });
+        });
+
+        var { error } = await supabaseClient.from('bookings').update({
+          service: newService,
+          service_price: newPrice,
+          extras: newExtras
+        }).eq('id', id);
+
+        if (error) { alert('Erro ao salvar: ' + error.message); return; }
+
+        // Fechar popup e recarregar
+        var popup = document.getElementById('popupBooking_' + id);
+        if (popup) popup.remove();
+        adminLoad();
+        var newTotal = newPrice;
+        newExtras.forEach(function(e) { newTotal += e.price; });
+        showAdminAlert('Serviço atualizado!', newService + (newExtras.length ? ' + ' + newExtras.map(function(e){return e.name;}).join(', ') : '') + ' — R$ ' + newTotal, 'new');
       };
 
       window.adminComplete = async function(id) {
