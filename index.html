@@ -5421,13 +5421,20 @@
         if (phone.length < 10) { document.getElementById('wiBirthdayRow').style.display = 'none'; return; }
         wiPhoneTimer = setTimeout(async function() {
           if (!supabaseClient) return;
-          var { data } = await supabaseClient.from('bookings').select('id').eq('customer_phone', wiPhoneEl.value.trim()).limit(1);
+          var phoneVal = wiPhoneEl.value.trim();
+          var { data } = await supabaseClient.from('bookings').select('id').eq('customer_phone', phoneVal).limit(1);
+          var { data: noteData } = await supabaseClient.from('customer_notes').select('birthday').eq('customer_phone', phoneVal).limit(1);
+          var hasBirthday = noteData && noteData.length && noteData[0].birthday;
           var row = document.getElementById('wiBirthdayRow');
           var hint = document.getElementById('wiBirthdayHint');
           if (!data || !data.length) {
             row.style.display = 'block';
             hint.style.display = 'block';
             hint.textContent = 'Cliente novo! Peça o aniversário dele.';
+          } else if (!hasBirthday) {
+            row.style.display = 'block';
+            hint.style.display = 'block';
+            hint.textContent = 'Aniversário ainda não cadastrado. Aproveite para pedir!';
           } else {
             row.style.display = 'none';
             hint.style.display = 'none';
