@@ -2840,7 +2840,10 @@
           <span style="font-family:var(--font-display);font-size:1.3rem;">New<span style="color:var(--red);">Stylle</span></span>
           <span id="adminRoleLabel" style="font-size:0.78rem;background:rgba(230,57,70,0.15);color:var(--red);padding:4px 12px;border-radius:20px;font-weight:600;"></span>
         </div>
-        <button class="btn-admin-logout" id="adminLogoutBtn">Sair</button>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button id="btnReplayTour" style="display:none;padding:8px 14px;background:rgba(33,150,243,0.15);border:1px solid rgba(33,150,243,0.3);border-radius:8px;color:#2196f3;font-size:0.8rem;font-weight:600;cursor:pointer;">? Tour</button>
+          <button class="btn-admin-logout" id="adminLogoutBtn">Sair</button>
+        </div>
       </header>
       <div class="admin-tabs">
         <button class="admin-tab active" id="tabAgenda" onclick="adminSwitchTab('agenda')">Agenda</button>
@@ -4290,9 +4293,17 @@
         adminSwitchTab('agenda');
         adminLoad();
 
-        // Tour guiado para Recepção (só na primeira vez)
-        if (role === 'recepcao' && !localStorage.getItem('ns_tour_recepcao')) {
-          setTimeout(function() { startRecepcaoTour(); }, 600);
+        // Botão de replay tour (só recepção)
+        var btnTour = document.getElementById('btnReplayTour');
+        if (role === 'recepcao') {
+          btnTour.style.display = '';
+          btnTour.onclick = function() { startRecepcaoTour(); };
+          // Tour guiado na primeira vez
+          if (!localStorage.getItem('ns_tour_recepcao')) {
+            setTimeout(function() { startRecepcaoTour(); }, 600);
+          }
+        } else {
+          btnTour.style.display = 'none';
         }
       }
 
