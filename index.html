@@ -6930,16 +6930,18 @@
         if (tier === 'vip') badge += '<span class="crm-badge vip">VIP</span>';
         else if (tier === 'fiel') badge += '<span class="crm-badge" style="background:rgba(255,152,0,0.15);color:#ff9800;">Fiel</span>';
         else if (tier === 'regular') badge += '<span class="crm-badge" style="background:rgba(76,175,80,0.15);color:#4caf50;">Regular</span>';
+        else if (c.visits === 0) badge += '<span class="crm-badge" style="background:rgba(33,150,243,0.15);color:#2196f3;">Agendado</span>';
         else badge += '<span class="crm-badge new">Novo</span>';
-        if (c.lastVisit < thirtyStr) badge += '<span class="crm-badge inactive">Inativo</span>';
+        if (c.visits > 0 && c.lastVisit < thirtyStr) badge += '<span class="crm-badge inactive">Inativo</span>';
         var initials = c.name.split(' ').map(function(w) { return w[0]; }).join('').substring(0, 2).toUpperCase();
         var favService = Object.entries(c.services).sort(function(a, b) { return b[1] - a[1]; })[0];
         var daysSince = c.lastVisit ? Math.floor((new Date() - new Date(c.lastVisit)) / 86400000) : null;
-        var timeLabel = daysSince !== null ? daysSince + 'd atras' : 'Sem visitas';
+        var timeLabel = c.visits === 0 ? 'Aguardando atendimento' : (daysSince !== null ? daysSince + 'd atras' : 'Sem visitas');
+        var metaText = c.visits === 0 ? '<span>Agendamento pendente</span>' : '<span>' + c.visits + ' cortes</span><span>R$ ' + c.total + ' gasto</span><span>' + timeLabel + '</span>';
         html += '<div class="crm-client" onclick="crmShowDetail(\'' + c.phone.replace(/'/g, "\\'") + '\')">' +
           '<div class="crm-avatar">' + initials + '</div>' +
           '<div class="crm-client-info"><div class="crm-client-name">' + adminEsc(c.name) + '</div>' +
-          '<div class="crm-client-meta"><span>' + c.visits + ' cortes</span><span>R$ ' + c.total + ' gasto</span><span>' + timeLabel + '</span>' +
+          '<div class="crm-client-meta">' + metaText +
           (favService ? '<span>' + favService[0] + '</span>' : '') + '</div></div>' +
           '<div class="crm-client-badges">' + badge + '</div></div>';
       });
