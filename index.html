@@ -4311,158 +4311,110 @@
       // ===== TOUR GUIADO - RECEPÇÃO =====
       function startRecepcaoTour() {
         var steps = [
-          {
-            icon: '📋',
-            title: 'Agenda',
-            tab: 'agenda',
-            desc: 'A grade mostra todos os agendamentos do dia, organizados por barbeiro e horário.<br><br>' +
-              '<b>Setas &lt; &gt;</b> — Navega entre os dias<br>' +
-              '<b>Botão HOJE</b> — Volta pro dia atual<br>' +
-              '<b>Semana / Quinzena / Mês</b> — Vê agendamentos futuros<br>' +
-              '<b>Quadrado colorido</b> — Clique pra ver detalhes, confirmar ou concluir<br>' +
-              '<b>Quadrado vazio</b> — Clique pra cadastrar atendimento naquele horário<br>' +
-              '<b>CHOQUE (vermelho)</b> — Dois clientes no mesmo horário<br>' +
-              '<b>SEGUIDO (laranja)</b> — Atendimentos sem intervalo'
-          },
-          {
-            icon: '➕',
-            title: '+Atendimento',
-            tab: 'walkin',
-            desc: 'Cadastre o cliente que chegou sem agendar pelo site.<br><br>' +
-              '<b>Nome e WhatsApp</b> — Dados do cliente (obrigatório)<br>' +
-              '<b>Serviço</b> — Escolha o corte ou combo. Combos ocupam 2 horários<br>' +
-              '<b>Barbeiro</b> — Clique na foto do barbeiro que vai atender<br>' +
-              '<b>Data e Horário</b> — Deixe "Agora" ou escolha um horário específico<br>' +
-              '<b>Cadastrar</b> — Salva e já aparece na grade da Agenda'
-          },
-          {
-            icon: '📨',
-            title: 'Remarketing',
-            tab: 'remarketing',
-            desc: 'Clientes que não voltam há muito tempo aparecem aqui.<br><br>' +
-              '<b>Filtro de dias</b> — Escolha: 7, 15, 30, 45 ou 60+ dias sem voltar<br>' +
-              '<b>Buscar</b> — Carrega a lista de clientes inativos<br>' +
-              '<b>Botão WhatsApp</b> — Abre conversa direto com o cliente pra chamar de volta<br>' +
-              '<b>Dica:</b> Use essa aba toda semana pra manter os clientes voltando!'
-          },
-          {
-            icon: '🏆',
-            title: 'Ranking',
-            tab: 'ranking',
-            desc: 'Acompanhe o desempenho de cada barbeiro.<br><br>' +
-              '<b>Período</b> — Diário, semanal ou mensal<br>' +
-              '<b>Atendimentos</b> — Quantos clientes cada barbeiro atendeu<br>' +
-              '<b>Faturamento</b> — Quanto cada barbeiro faturou<br>' +
-              '<b>Serviços mais vendidos</b> — Quais cortes e combos saem mais'
-          },
-          {
-            icon: '💰',
-            title: 'Vendas (PDV)',
-            tab: 'pdv',
-            desc: 'Registre vendas de produtos da barbearia.<br><br>' +
-              '<b>Produto</b> — Nome do produto (pomada, shampoo, etc.)<br>' +
-              '<b>Valor</b> — Preço do produto<br>' +
-              '<b>Barbeiro</b> — Quem vendeu (conta na comissão dele)<br>' +
-              '<b>Pagamento</b> — Dinheiro, PIX, Débito ou Crédito<br>' +
-              '<b>Registrar</b> — Salva a venda no sistema'
-          },
-          {
-            icon: '👥',
-            title: 'Clientes (CRM)',
-            tab: 'crm',
-            desc: 'Todos os clientes que já vieram na barbearia.<br><br>' +
-              '<b>Busca</b> — Pesquise por nome ou telefone<br>' +
-              '<b>Visitas</b> — Quantas vezes o cliente já veio<br>' +
-              '<b>Última visita</b> — Quando foi o último corte<br>' +
-              '<b>Serviço favorito</b> — O que ele mais pede<br>' +
-              '<b>WhatsApp</b> — Abre conversa direto com o cliente'
-          },
-          {
-            icon: '🎖️',
-            title: 'Fidelidade',
-            tab: 'loyalty',
-            desc: 'Programa de fidelidade da barbearia.<br><br>' +
-              '<b>Como funciona:</b> A cada X cortes, o cliente ganha 1 grátis<br>' +
-              '<b>Progresso</b> — Mostra quantos cortes cada cliente já fez<br>' +
-              '<b>Resgate</b> — Quando completar, marque o corte grátis<br>' +
-              '<b>Dica:</b> Avise o cliente quantos cortes faltam — isso faz ele voltar!'
-          }
+          // === AGENDA ===
+          { tab: 'agenda', el: 'tabAgenda', title: 'Aba Agenda', desc: 'Essa é a aba principal. Aqui você vê todos os agendamentos do dia na grade.' },
+          { tab: 'agenda', el: 'agGridDateLabel', title: 'Data atual', desc: 'Mostra qual dia você está vendo. Use as setas < > pra trocar o dia, ou clique HOJE pra voltar pro dia atual.' },
+          { tab: 'agenda', el: 'aTotal', title: 'Total de agendamentos', desc: 'Mostra quantos agendamentos tem no dia. Ao lado você vê os Pendentes, Confirmados e o Faturamento.' },
+          { tab: 'agenda', el: 'agGrid', title: 'Grade de horários', desc: 'Cada coluna é um barbeiro e cada linha é um horário. Os quadrados coloridos são agendamentos — clique pra ver detalhes. Quadrados vazios podem ser clicados pra cadastrar atendimento.' },
+          // === +ATENDIMENTO ===
+          { tab: 'walkin', el: 'tabWalkin', title: 'Aba +Atendimento', desc: 'Use quando o cliente chegar sem ter agendado pelo site. Você cadastra ele na hora.' },
+          { tab: 'walkin', el: 'wiName', title: 'Nome e WhatsApp', desc: 'Preencha o nome completo e o WhatsApp do cliente. São obrigatórios pra cadastrar.' },
+          { tab: 'walkin', el: 'wiService', title: 'Serviço', desc: 'Escolha o serviço: corte, barba, combo, etc. Os combos (com "+") ocupam 2 horários na grade.' },
+          { tab: 'walkin', el: 'wiBarberGrid', title: 'Escolha o barbeiro', desc: 'Clique na foto do barbeiro que vai atender o cliente.' },
+          { tab: 'walkin', el: 'wiDate', title: 'Data e horário', desc: 'A data já vem preenchida com hoje. O horário fica em "Agora" — mas você pode escolher outro se quiser.' },
+          { tab: 'walkin', el: 'wiSave', title: 'Botão Cadastrar', desc: 'Depois de preencher tudo, clique aqui. O atendimento vai aparecer na grade da Agenda.' },
+          // === REMARKETING ===
+          { tab: 'remarketing', el: 'tabRmk', title: 'Aba Remarketing', desc: 'Mostra clientes que não voltam há muito tempo. Use pra chamar eles de volta pelo WhatsApp.' },
+          { tab: 'remarketing', el: 'rmkDays', title: 'Filtro de dias', desc: 'Escolha há quantos dias o cliente não aparece: 7, 15, 30, 45 ou 60+ dias.' },
+          { tab: 'remarketing', el: 'rmkRefresh', title: 'Botão Buscar', desc: 'Clique pra carregar a lista de clientes inativos. Cada um tem um botão de WhatsApp pra você mandar mensagem.' },
+          // === RANKING ===
+          { tab: 'ranking', el: 'tabRank', title: 'Aba Ranking', desc: 'Acompanhe o desempenho de cada barbeiro: quem atendeu mais, quem faturou mais.' },
+          { tab: 'ranking', el: 'rankPeriod', title: 'Período', desc: 'Mude entre diário, semanal ou mensal pra ver os números de cada barbeiro.' },
+          // === VENDAS ===
+          { tab: 'pdv', el: 'tabPdv', title: 'Aba Vendas', desc: 'Registre vendas de produtos da barbearia: pomada, shampoo, cera, etc.' },
+          // === CLIENTES ===
+          { tab: 'crm', el: 'tabCrm', title: 'Aba Clientes', desc: 'Lista todos os clientes que já vieram. Veja quantas vezes veio, quando foi a última visita e o serviço favorito.' },
+          // === FIDELIDADE ===
+          { tab: 'loyalty', el: 'tabLoyalty', title: 'Aba Fidelidade', desc: 'Programa de fidelidade: a cada X cortes, o cliente ganha 1 grátis. Avise quantos faltam — isso faz ele voltar!' },
+          // === FIM ===
+          { tab: 'agenda', el: 'tabAgenda', title: 'Pronto!', desc: 'Agora você já sabe usar o sistema. Se precisar ver esse tour de novo, clique no botão "? Tour" ao lado do botão Sair.' }
         ];
 
         var currentStep = 0;
+        var prevHighlight = null;
+
+        function clearHighlight() {
+          if (prevHighlight) {
+            prevHighlight.style.outline = '';
+            prevHighlight.style.outlineOffset = '';
+            prevHighlight.style.zIndex = '';
+            prevHighlight.style.position = prevHighlight._tourPos || '';
+            delete prevHighlight._tourPos;
+            prevHighlight = null;
+          }
+        }
 
         function renderTour() {
+          clearHighlight();
           var existing = document.getElementById('tourOverlay');
           if (existing) existing.remove();
 
           var s = steps[currentStep];
 
-          // Navega pra aba correspondente
+          // Navega pra aba
           if (s.tab) adminSwitchTab(s.tab);
-          window.scrollTo({ top: 0 });
 
-          var dots = '';
-          for (var i = 0; i < steps.length; i++) {
-            dots += '<div class="tour-dot' + (i === currentStep ? ' active' : '') + '"></div>';
+          // Highlight no elemento
+          var target = document.getElementById(s.el);
+          if (target) {
+            target._tourPos = target.style.position;
+            target.style.position = 'relative';
+            target.style.zIndex = '100000';
+            target.style.outline = '3px solid #2196f3';
+            target.style.outlineOffset = '4px';
+            prevHighlight = target;
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
 
           var isFirst = currentStep === 0;
           var isLast = currentStep === steps.length - 1;
 
+          var counter = '<span style="color:var(--text-muted);font-size:0.75rem;">' + (currentStep + 1) + ' / ' + steps.length + '</span>';
+
           var btns = '';
-          if (!isFirst) {
-            btns += '<button class="tour-btn tour-btn-prev" id="tourPrev">Anterior</button>';
-          }
-          btns += '<button class="tour-btn tour-btn-skip" id="tourSkip">Pular</button>';
-          if (isLast) {
-            btns += '<button class="tour-btn tour-btn-next" id="tourNext">Começar!</button>';
-          } else {
-            btns += '<button class="tour-btn tour-btn-next" id="tourNext">Próximo</button>';
-          }
+          if (!isFirst) btns += '<button class="tour-btn tour-btn-prev" id="tourPrev">&#9664; Anterior</button>';
+          btns += '<button class="tour-btn tour-btn-skip" id="tourSkip">Pular tour</button>';
+          btns += '<button class="tour-btn tour-btn-next" id="tourNext">' + (isLast ? 'Fechar &#10004;' : 'Próximo &#9654;') + '</button>';
 
           var overlay = document.createElement('div');
           overlay.id = 'tourOverlay';
-          overlay.className = 'tour-overlay';
-          overlay.style.cssText = 'align-items:flex-end;padding-bottom:24px;';
+          overlay.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:99999;padding:12px;pointer-events:none;';
           overlay.innerHTML =
-            '<div class="tour-card" style="max-width:440px;width:92%;margin:0 auto;">' +
-              '<div class="tour-icon">' + s.icon + '</div>' +
-              '<div class="tour-step-label">Passo ' + (currentStep + 1) + ' de ' + steps.length + '</div>' +
-              '<div class="tour-title">' + s.title + '</div>' +
-              '<div class="tour-desc" style="text-align:left;font-size:0.82rem;line-height:1.6;">' + s.desc + '</div>' +
-              '<div class="tour-dots">' + dots + '</div>' +
-              '<div class="tour-btns">' + btns + '</div>' +
+            '<div style="pointer-events:auto;max-width:460px;margin:0 auto;background:rgba(20,20,30,0.95);border:1px solid rgba(33,150,243,0.4);border-radius:14px;padding:20px 22px 16px;box-shadow:0 -8px 32px rgba(0,0,0,0.5);">' +
+              '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
+                '<span style="font-weight:700;font-size:1rem;color:#2196f3;">' + s.title + '</span>' +
+                counter +
+              '</div>' +
+              '<div style="font-size:0.85rem;line-height:1.6;color:var(--text,#e0e0e0);margin-bottom:14px;">' + s.desc + '</div>' +
+              '<div style="display:flex;gap:8px;justify-content:center;">' + btns + '</div>' +
             '</div>';
           document.body.appendChild(overlay);
 
           document.getElementById('tourNext').addEventListener('click', function() {
-            if (isLast) {
-              closeTour();
-            } else {
-              currentStep++;
-              renderTour();
-            }
+            if (isLast) closeTour(); else { currentStep++; renderTour(); }
           });
-
           if (!isFirst) {
-            document.getElementById('tourPrev').addEventListener('click', function() {
-              currentStep--;
-              renderTour();
-            });
+            document.getElementById('tourPrev').addEventListener('click', function() { currentStep--; renderTour(); });
           }
-
           document.getElementById('tourSkip').addEventListener('click', closeTour);
-
-          // Fechar clicando fora do card
-          overlay.addEventListener('click', function(e) {
-            if (e.target === overlay) closeTour();
-          });
         }
 
         function closeTour() {
+          clearHighlight();
           localStorage.setItem('ns_tour_recepcao', '1');
           var el = document.getElementById('tourOverlay');
-          if (el) { el.style.opacity = '0'; el.style.transition = 'opacity .25s'; setTimeout(function() { el.remove(); }, 250); }
+          if (el) el.remove();
+          adminSwitchTab('agenda');
         }
 
         renderTour();
