@@ -4311,33 +4311,51 @@
       // ===== TOUR GUIADO - RECEPÇÃO =====
       function startRecepcaoTour() {
         var steps = [
+          // === BEM-VINDO ===
+          { tab: 'agenda', el: 'adminRoleLabel', title: 'Bem-vindo à Recepção!', desc: 'Vou te mostrar como usar cada parte do sistema. É bem simples! Clique em "Próximo" pra começar.' },
           // === AGENDA ===
-          { tab: 'agenda', el: 'tabAgenda', title: 'Aba Agenda', desc: 'Essa é a aba principal. Aqui você vê todos os agendamentos do dia na grade.' },
-          { tab: 'agenda', el: 'agGridDateLabel', title: 'Data atual', desc: 'Mostra qual dia você está vendo. Use as setas < > pra trocar o dia, ou clique HOJE pra voltar pro dia atual.' },
-          { tab: 'agenda', el: 'aTotal', title: 'Total de agendamentos', desc: 'Mostra quantos agendamentos tem no dia. Ao lado você vê os Pendentes, Confirmados e o Faturamento.' },
-          { tab: 'agenda', el: 'agGrid', title: 'Grade de horários', desc: 'Cada coluna é um barbeiro e cada linha é um horário. Os quadrados coloridos são agendamentos — clique pra ver detalhes. Quadrados vazios podem ser clicados pra cadastrar atendimento.' },
+          { tab: 'agenda', el: 'tabAgenda', title: 'Aba Agenda', desc: 'Essa é a aba principal. Aqui você vê todos os agendamentos do dia organizados por barbeiro e horário.' },
+          { tab: 'agenda', el: 'agGridDateLabel', title: 'Navegação de data', desc: 'Aqui mostra o dia que você está vendo. Clique nas setas < e > pra ir pro dia anterior ou próximo. O botão vermelho HOJE volta pro dia de hoje.' },
+          { tab: 'agenda', el: 'aTotal', title: 'Resumo do dia', desc: 'Esses números mostram o total de agendamentos, quantos estão pendentes, quantos confirmados e o faturamento do dia.' },
+          { tab: 'agenda', el: 'agLegend', title: 'Cores dos agendamentos', desc: 'As cores significam o status: Amarelo = Pendente (ainda não confirmou), Verde = Confirmado, Azul = Concluído (já atendeu), Laranja = Aguardando aprovação.' },
+          { tab: 'agenda', el: 'agGrid', title: 'Grade de horários', desc: 'Cada coluna é um barbeiro e cada linha é um horário de 40 minutos. Clique num quadrado colorido pra ver os detalhes do agendamento. Clique num quadrado vazio pra cadastrar um atendimento naquele horário.' },
           // === +ATENDIMENTO ===
-          { tab: 'walkin', el: 'tabWalkin', title: 'Aba +Atendimento', desc: 'Use quando o cliente chegar sem ter agendado pelo site. Você cadastra ele na hora.' },
-          { tab: 'walkin', el: 'wiName', title: 'Nome e WhatsApp', desc: 'Preencha o nome completo e o WhatsApp do cliente. São obrigatórios pra cadastrar.' },
-          { tab: 'walkin', el: 'wiService', title: 'Serviço', desc: 'Escolha o serviço: corte, barba, combo, etc. Os combos (com "+") ocupam 2 horários na grade.' },
-          { tab: 'walkin', el: 'wiBarberGrid', title: 'Escolha o barbeiro', desc: 'Clique na foto do barbeiro que vai atender o cliente.' },
-          { tab: 'walkin', el: 'wiDate', title: 'Data e horário', desc: 'A data já vem preenchida com hoje. O horário fica em "Agora" — mas você pode escolher outro se quiser.' },
-          { tab: 'walkin', el: 'wiSave', title: 'Botão Cadastrar', desc: 'Depois de preencher tudo, clique aqui. O atendimento vai aparecer na grade da Agenda.' },
+          { tab: 'walkin', el: 'tabWalkin', title: 'Aba +Atendimento', desc: 'Use essa aba quando um cliente chegar na barbearia sem ter agendado pelo site. Você cadastra ele aqui na hora.' },
+          { tab: 'walkin', el: 'wiName', title: 'Nome do cliente', desc: 'Digite o nome completo do cliente. É obrigatório pra cadastrar.' },
+          { tab: 'walkin', el: 'wiPhone', title: 'WhatsApp do cliente', desc: 'Digite o número de WhatsApp. Também é obrigatório. Serve pra mandar lembrete e pra ele entrar no remarketing depois.' },
+          { tab: 'walkin', el: 'wiService', title: 'Escolha o serviço', desc: 'Selecione o que o cliente vai fazer: corte, barba, combo, etc. Os combos (serviços com "+") ocupam 2 horários seguidos na grade.' },
+          { tab: 'walkin', el: 'wiBarberGrid', title: 'Escolha o barbeiro', desc: 'Clique na foto do barbeiro que vai atender. A foto fica com borda vermelha quando selecionada.' },
+          { tab: 'walkin', el: 'wiDate', title: 'Data do atendimento', desc: 'Já vem com a data de hoje. Mude só se precisar cadastrar pra outro dia.' },
+          { tab: 'walkin', el: 'wiTime', title: 'Horário do atendimento', desc: 'Deixe em "Agora" pra registrar no horário atual, ou escolha um horário específico da lista.' },
+          { tab: 'walkin', el: 'wiSave', title: 'Botão Cadastrar', desc: 'Depois de preencher tudo, clique nesse botão vermelho. O atendimento é salvo e aparece na grade da Agenda automaticamente.' },
           // === REMARKETING ===
-          { tab: 'remarketing', el: 'tabRmk', title: 'Aba Remarketing', desc: 'Mostra clientes que não voltam há muito tempo. Use pra chamar eles de volta pelo WhatsApp.' },
-          { tab: 'remarketing', el: 'rmkDays', title: 'Filtro de dias', desc: 'Escolha há quantos dias o cliente não aparece: 7, 15, 30, 45 ou 60+ dias.' },
-          { tab: 'remarketing', el: 'rmkRefresh', title: 'Botão Buscar', desc: 'Clique pra carregar a lista de clientes inativos. Cada um tem um botão de WhatsApp pra você mandar mensagem.' },
+          { tab: 'remarketing', el: 'tabRmk', title: 'Aba Remarketing', desc: 'Aqui aparecem os clientes que não voltam há muito tempo. Use pra chamar eles de volta pelo WhatsApp!' },
+          { tab: 'remarketing', el: 'rmkDays', title: 'Filtro de dias sem voltar', desc: 'Escolha o período: 7, 15, 30, 45 ou 60+ dias sem aparecer na barbearia. Quanto mais dias, mais urgente chamar!' },
+          { tab: 'remarketing', el: 'rmkRefresh', title: 'Botão Buscar', desc: 'Clique aqui pra carregar a lista de clientes inativos. Vai aparecer o nome, telefone e há quantos dias ele não vem.' },
+          { tab: 'remarketing', el: 'rmkList', title: 'Lista de clientes inativos', desc: 'Cada cliente aparece com um botão verde de WhatsApp. Clicando nele, abre a conversa direto no WhatsApp pra você mandar mensagem chamando o cliente de volta.' },
           // === RANKING ===
-          { tab: 'ranking', el: 'tabRank', title: 'Aba Ranking', desc: 'Acompanhe o desempenho de cada barbeiro: quem atendeu mais, quem faturou mais.' },
-          { tab: 'ranking', el: 'rankPeriod', title: 'Período', desc: 'Mude entre diário, semanal ou mensal pra ver os números de cada barbeiro.' },
-          // === VENDAS ===
-          { tab: 'pdv', el: 'tabPdv', title: 'Aba Vendas', desc: 'Registre vendas de produtos da barbearia: pomada, shampoo, cera, etc.' },
-          // === CLIENTES ===
-          { tab: 'crm', el: 'tabCrm', title: 'Aba Clientes', desc: 'Lista todos os clientes que já vieram. Veja quantas vezes veio, quando foi a última visita e o serviço favorito.' },
+          { tab: 'ranking', el: 'tabRank', title: 'Aba Ranking', desc: 'Mostra o desempenho dos barbeiros: quem atendeu mais clientes e quem faturou mais.' },
+          { tab: 'ranking', el: 'rankPeriod', title: 'Filtro de período', desc: 'Mude entre Diário, Semanal ou Mensal. Serve pra comparar o desempenho dos barbeiros em diferentes períodos.' },
+          // === VENDAS (PDV) ===
+          { tab: 'pdv', el: 'tabPdv', title: 'Aba Vendas', desc: 'Registre vendas de produtos da barbearia aqui: pomada, shampoo, cera, óleo, etc.' },
+          { tab: 'pdv', el: 'pdvProduct', title: 'Produto', desc: 'Escolha o produto que o cliente vai comprar. Se não tiver na lista, clique em "+ Adicionar" pra cadastrar um novo.' },
+          { tab: 'pdv', el: 'pdvBarber', title: 'Barbeiro que vendeu', desc: 'Selecione qual barbeiro fez a venda. Isso conta na comissão dele.' },
+          { tab: 'pdv', el: 'pdvPayment', title: 'Forma de pagamento', desc: 'Escolha como o cliente pagou: Dinheiro, PIX, Débito ou Crédito.' },
+          { tab: 'pdv', el: 'pdvSell', title: 'Botão Registrar Venda', desc: 'Clique aqui pra salvar a venda. O valor vai pro faturamento do dia e aparece no relatório.' },
+          { tab: 'pdv', el: 'pdvDayTotal', title: 'Faturamento do dia', desc: 'Mostra o total de vendas de produtos do dia e quantas vendas foram feitas.' },
+          // === CLIENTES (CRM) ===
+          { tab: 'crm', el: 'tabCrm', title: 'Aba Clientes', desc: 'Todos os clientes que já vieram na barbearia ficam listados aqui com o histórico completo.' },
+          { tab: 'crm', el: 'crmSearch', title: 'Busca de clientes', desc: 'Digite o nome ou telefone pra encontrar um cliente específico.' },
+          { tab: 'crm', el: 'crmSearchBtn', title: 'Botão Buscar', desc: 'Clique pra pesquisar. Vai mostrar o cliente com: quantas vezes veio, última visita, serviço favorito e botão de WhatsApp.' },
           // === FIDELIDADE ===
-          { tab: 'loyalty', el: 'tabLoyalty', title: 'Aba Fidelidade', desc: 'Programa de fidelidade: a cada X cortes, o cliente ganha 1 grátis. Avise quantos faltam — isso faz ele voltar!' },
+          { tab: 'loyalty', el: 'tabLoyalty', title: 'Aba Fidelidade', desc: 'Programa de fidelidade da barbearia. O cliente acumula cortes e depois ganha um grátis!' },
+          { tab: 'loyalty', el: 'loyaltyTarget', title: 'Meta de cortes', desc: 'Define quantos cortes o cliente precisa fazer pra ganhar 1 grátis. Exemplo: se tiver "4", a cada 4 cortes ele ganha o 5º de graça.' },
+          { tab: 'loyalty', el: 'loyaltyStats', title: 'Estatísticas de fidelidade', desc: 'Mostra quantos clientes estão no programa e quantos já resgataram o corte grátis.' },
+          // === BOTÕES DO TOPO ===
+          { tab: 'agenda', el: 'btnReplayTour', title: 'Botão "Quero aprender"', desc: 'Se precisar ver esse tour de novo, é só clicar nesse botão aqui. Ele fica sempre visível ao lado do botão Sair.' },
+          { tab: 'agenda', el: 'adminLogoutBtn', title: 'Botão Sair', desc: 'Clique aqui quando terminar de usar o sistema. Volta pra tela de login.' },
           // === FIM ===
-          { tab: 'agenda', el: 'tabAgenda', title: 'Pronto!', desc: 'Agora você já sabe usar o sistema. Se precisar ver esse tour de novo, clique no botão "Quero aprender" ao lado do botão Sair.' }
+          { tab: 'agenda', el: 'adminRoleLabel', title: 'Pronto! Você já sabe tudo!', desc: 'Agora é só usar o sistema no dia a dia. Se tiver dúvida, clique em "Quero aprender" pra ver esse tour novamente. Bom trabalho!' }
         ];
 
         var currentStep = 0;
