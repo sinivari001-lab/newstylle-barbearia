@@ -6831,6 +6831,7 @@
 
       // Add manually registered clients (from customer_notes) that have no bookings
       notes.forEach(function(n) {
+        if (n.customer_phone === '__CONFIG__') return;
         if (!clients[n.customer_phone] && n.customer_name) {
           clients[n.customer_phone] = {
             name: n.customer_name, phone: n.customer_phone, visits: 0, total: 0,
@@ -6851,7 +6852,8 @@
       var thirtyAgo = new Date(today); thirtyAgo.setDate(thirtyAgo.getDate() - 30);
       var thirtyStr = thirtyAgo.toISOString().split('T')[0];
       var activeCount = list.filter(function(c) { return c.lastVisit >= thirtyStr; }).length;
-      var avgTicket = totalClients > 0 ? Math.round(list.reduce(function(s, c) { return s + c.total; }, 0) / list.reduce(function(s, c) { return s + c.visits; }, 0)) : 0;
+      var totalVisits = list.reduce(function(s, c) { return s + c.visits; }, 0);
+      var avgTicket = totalVisits > 0 ? Math.round(list.reduce(function(s, c) { return s + c.total; }, 0) / totalVisits) : 0;
 
       // Build alerts — clients overdue or due soon
       var alerts = list.filter(function(c) { return c.avgCycle > 0 && c.daysOverdue > -7; })
