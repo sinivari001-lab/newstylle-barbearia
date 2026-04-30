@@ -3736,7 +3736,7 @@
       } catch(e) {}
     }
 
-    // Carregar barbeiros ordenados por meritocracia (mais atendimentos primeiro)
+    // Carregar barbeiros ordenados por disponibilidade (mais horários livres primeiro)
     async function loadBarberGrid() {
       const grid = document.getElementById('barberGrid');
       try {
@@ -3761,15 +3761,12 @@
           if (todayBookings) todayBookings.forEach(function(b) { bookedToday[b.barber] = (bookedToday[b.barber] || 0) + 1; });
         }
 
-        // Contar atendimentos concluidos para ordenacao por meritocracia
-        var counts = {};
-        if (supabaseClient) {
-          var { data: completedBookings } = await supabaseClient.from('bookings').select('barber').eq('status', 'completed');
-          if (completedBookings) completedBookings.forEach(function(b) { counts[b.barber] = (counts[b.barber] || 0) + 1; });
-        }
-
-        // Ordenar por total de atendimentos (decrescente)
-        barbers.sort(function(a, b) { return (counts[b] || 0) - (counts[a] || 0); });
+        // Ordenar por disponibilidade (mais horários livres primeiro)
+        barbers.sort(function(a, b) {
+          var availA = ALL_SLOTS.length - (bookedToday[a] || 0) - pastSlots;
+          var availB = ALL_SLOTS.length - (bookedToday[b] || 0) - pastSlots;
+          return availB - availA;
+        });
 
         // Renderizar
         grid.innerHTML = '';
