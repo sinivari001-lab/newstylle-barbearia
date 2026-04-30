@@ -5616,7 +5616,10 @@
             h += '<div class="admin-card-client">' + adminEsc(b.customer_name) + ' <span class="admin-badge ' + bc + '">' + sLabel + '</span></div>';
             h += '<div class="admin-card-service">' + adminEsc(b.service) + ' — R$ ' + total + '</div>';
             if (extras) h += '<div class="admin-card-extras">+ ' + adminEsc(extras) + '</div>';
+            var pmLabel = b.payment_method || '';
+            if (!pmLabel && b.obs) { var pmMatch = (b.obs || '').match(/\[PGTO:(\w+)\]/); if (pmMatch) pmLabel = pmMatch[1]; }
             h += '<div class="admin-card-meta"><span>Barbeiro: ' + adminEsc(b.barber) + '</span><span>Pessoas: ' + b.people + '</span><span>Tel: ' + adminEsc(b.customer_phone) + '</span>';
+            if (pmLabel) h += '<span>Pgto: <strong style="color:#4caf50;">' + adminEsc(pmLabel.toUpperCase()) + '</strong></span>';
             if (b.obs) h += '<span>Obs: ' + adminEsc(b.obs) + '</span>';
             h += '</div></div>';
             h += '<div class="admin-card-actions">';
