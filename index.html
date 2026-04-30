@@ -2129,6 +2129,59 @@
     .reveal-delay-1 { transition-delay: 0.1s; }
     .reveal-delay-2 { transition-delay: 0.2s; }
     .reveal-delay-3 { transition-delay: 0.3s; }
+
+    /* ===== GUIDED TOUR (Reception) ===== */
+    .tour-overlay {
+      position: fixed; inset: 0; z-index: 99999;
+      background: rgba(0,0,0,0.82);
+      display: flex; align-items: center; justify-content: center;
+      animation: tourFadeIn .35s ease;
+    }
+    @keyframes tourFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .tour-card {
+      background: var(--dark-card, #1e1e2e); border: 1px solid var(--border, #333);
+      border-radius: 16px; max-width: 420px; width: 92%; padding: 32px 28px 24px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.5); text-align: center;
+      animation: tourSlideUp .35s ease;
+    }
+    @keyframes tourSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    .tour-icon { font-size: 2.8rem; margin-bottom: 12px; }
+    .tour-step-label {
+      font-size: .7rem; text-transform: uppercase; letter-spacing: 2px;
+      color: var(--text-muted, #999); margin-bottom: 8px;
+    }
+    .tour-title {
+      font-size: 1.25rem; font-weight: 700; color: var(--text, #fff);
+      margin-bottom: 10px;
+    }
+    .tour-desc {
+      font-size: .92rem; color: var(--text-muted, #bbb); line-height: 1.55;
+      margin-bottom: 24px;
+    }
+    .tour-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; }
+    .tour-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,.18); transition: background .2s;
+    }
+    .tour-dot.active { background: var(--red, #e63946); }
+    .tour-btns { display: flex; gap: 10px; justify-content: center; }
+    .tour-btn {
+      padding: 10px 22px; border-radius: 8px; font-size: .88rem;
+      font-weight: 600; cursor: pointer; border: none; transition: all .2s;
+    }
+    .tour-btn-prev {
+      background: rgba(255,255,255,.08); color: var(--text, #fff);
+    }
+    .tour-btn-prev:hover { background: rgba(255,255,255,.15); }
+    .tour-btn-next {
+      background: var(--red, #e63946); color: #fff;
+    }
+    .tour-btn-next:hover { filter: brightness(1.15); }
+    .tour-btn-skip {
+      background: transparent; color: var(--text-muted, #999);
+      font-size: .82rem; text-decoration: underline; padding: 10px 14px;
+    }
+    .tour-btn-skip:hover { color: var(--text, #fff); }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
@@ -2418,7 +2471,7 @@
             <div class="curso-item"><div class="curso-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--red)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>Turmas reduzidas para melhor aprendizado</div>
             <div class="curso-item"><div class="curso-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--red)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>Instrutores com experiência de mercado</div>
           </div>
-          <a href="https://wa.me/5571996365794?text=Ola!%20Tenho%20interesse%20no%20curso%20de%20barbeiro!" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+          <a href="https://wa.me/5571996365794?text=Ol%C3%A1!%20Tenho%20interesse%20no%20curso%20de%20barbeiro!" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
             Quero Saber Mais
           </a>
         </div>
@@ -2584,12 +2637,12 @@
           </div>
         </div>
 
-        <!-- Step 1: Servico -->
+        <!-- Step 1: Serviço -->
         <div class="booking-panel active" id="bkStep1">
           <div class="booking-label">Escolha o serviço</div>
           <div class="service-options" id="mainServices">
             <div class="service-opt" data-service="Corte com máquina" data-price="35">
-              <div class="service-opt-info"><span class="service-opt-name">Corte com máquina</span><span class="service-opt-desc">Degrade, navalhado e estilos</span></div>
+              <div class="service-opt-info"><span class="service-opt-name">Corte com máquina</span><span class="service-opt-desc">Degradê, navalhado e estilos</span></div>
               <span class="service-opt-price">R$ 35</span>
             </div>
             <div class="service-opt" data-service="Corte com tesoura" data-price="45">
@@ -2673,7 +2726,7 @@
           </div>
         </div>
 
-        <!-- Step 4: Data + Horario + Dados + Resumo -->
+        <!-- Step 4: Data + Horário + Dados + Resumo -->
         <div class="booking-panel" id="bkStep4">
           <div class="booking-label">Seus dados e horário</div>
 
@@ -2689,9 +2742,9 @@
             </div>
           </div>
           <div id="bkBirthdayRow" style="display:none;margin-bottom:12px;">
-            <label style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;display:block;">Data de aniversario <span style="font-size:0.72rem;opacity:0.6;">(opcional)</span></label>
+            <label style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;display:block;">Data de aniversário <span style="font-size:0.72rem;opacity:0.6;">(opcional)</span></label>
             <input type="date" id="bkBirthday" style="width:100%;padding:10px 14px;background:var(--dark-card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:0.9rem;">
-            <p id="bkBirthdayHint" style="font-size:0.72rem;color:#4caf50;margin-top:4px;">Primeira vez? Informe seu aniversario</p>
+            <p id="bkBirthdayHint" style="font-size:0.72rem;color:#4caf50;margin-top:4px;">Primeira vez? Informe seu aniversário</p>
           </div>
 
           <!-- Date -->
@@ -2738,7 +2791,7 @@
       <h2>Pronto pra ficar no <span>estilo</span>?</h2>
       <p>Agende seu horário agora pelo WhatsApp. Atendimento rápido e sem fila!</p>
       <div class="cta-buttons">
-        <a href="https://wa.me/5571996365794?text=Ola!%20Gostaria%20de%20agendar%20um%20horario%20na%20NewStylee!" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+        <a href="https://wa.me/5571996365794?text=Ol%C3%A1!%20Gostaria%20de%20agendar%20um%20hor%C3%A1rio%20na%20NewStylee!" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
           <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
           Agendar pelo WhatsApp
         </a>
@@ -2747,15 +2800,15 @@
     </div>
   </section>
 
-  <!-- ADMIN PANEL (oculto por padrao, ativado via ?admin ou ?recepcao) -->
+  <!-- ADMIN PANEL (oculto por padrão, ativado via ?admin ou ?recepcao) -->
   <div id="adminMode" style="display:none;">
-    <!-- Login Recepcao (senha unica, dentro do login admin) -->
+    <!-- Login Recepção (senha única, dentro do login admin) -->
     <div id="recepcaoLogin" class="admin-login" style="display:none;">
       <div class="admin-login-box" style="max-width:420px;">
         <div style="font-size:2.5rem;margin-bottom:4px;">&#9986;</div>
         <h1>New<span>Stylle</span></h1>
-        <p style="margin-bottom:20px;">Recepcao da Barbearia</p>
-        <input type="password" id="recPass" placeholder="Senha da recepcao" autofocus>
+        <p style="margin-bottom:20px;">Recepção da Barbearia</p>
+        <input type="password" id="recPass" placeholder="Senha da recepção" autofocus>
         <button class="btn-admin-login" id="recLoginBtn">Entrar</button>
         <div class="admin-login-error" id="recLoginError">Senha incorreta</div>
         <a href="#" id="recBackToAdmin" style="display:inline-block;margin-top:16px;color:var(--text-muted);font-size:0.82rem;text-decoration:none;">&larr; Voltar</a>
@@ -2765,7 +2818,7 @@
     <div id="adminLogin" class="admin-login">
       <div class="admin-login-box">
         <h1>New<span>Stylle</span></h1>
-        <p>Quem esta entrando?</p>
+        <p>Quem está entrando?</p>
         <div id="loginBarberGrid" class="login-barber-grid"></div>
         <div id="loginPassArea" style="display:none;">
           <p id="loginPassLabel" style="font-size:0.82rem;color:var(--text);margin-bottom:8px;"></p>
@@ -2775,7 +2828,7 @@
         <div class="admin-login-error" id="adminLoginError">Senha incorreta</div>
         <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
           <button class="login-owner-btn" id="loginOwnerBtn">&#9881; Entrar como Dono</button>
-          <button class="login-owner-btn" id="loginRecBtn" style="border-color:rgba(33,150,243,0.3);color:#2196f3;">&#9986; Recepcao</button>
+          <button class="login-owner-btn" id="loginRecBtn" style="border-color:rgba(33,150,243,0.3);color:#2196f3;">&#9986; Recepção</button>
         </div>
         <a href="?" style="display:inline-block;margin-top:12px;color:var(--text-muted);font-size:0.82rem;text-decoration:none;" onclick="sessionStorage.removeItem('ns_admin');sessionStorage.removeItem('ns_role');sessionStorage.removeItem('ns_barber');">&larr; Voltar ao site</a>
       </div>
@@ -2817,10 +2870,10 @@
           <div class="admin-stat" style="padding:8px 16px;"><div class="admin-stat-num" style="font-size:1.2rem;" id="aRevenue">R$ 0</div><div class="admin-stat-label" style="font-size:0.65rem;">Faturamento</div></div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;padding:10px 24px;border-bottom:1px solid var(--border);flex-wrap:wrap;">
-          <span style="color:var(--text-muted);font-size:0.82rem;font-weight:600;">Ver proximos:</span>
+          <span style="color:var(--text-muted);font-size:0.82rem;font-weight:600;">Ver próximos:</span>
           <button onclick="agQuickRange(7)" style="padding:8px 16px;background:var(--dark-card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.9rem;font-weight:600;cursor:pointer;">Semana</button>
           <button onclick="agQuickRange(15)" style="padding:8px 16px;background:var(--dark-card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.9rem;font-weight:600;cursor:pointer;">Quinzena</button>
-          <button onclick="agQuickRange(30)" style="padding:8px 16px;background:var(--dark-card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.9rem;font-weight:600;cursor:pointer;">Mes</button>
+          <button onclick="agQuickRange(30)" style="padding:8px 16px;background:var(--dark-card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.9rem;font-weight:600;cursor:pointer;">Mês</button>
           <button onclick="agQuickRange(60)" style="padding:8px 16px;background:var(--dark-card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.9rem;font-weight:600;cursor:pointer;">Todos</button>
           <button onclick="agDateRangeReset()" id="agRangeResetBtn" style="display:none;padding:8px 16px;background:rgba(244,67,54,0.12);border:1px solid rgba(244,67,54,0.3);border-radius:8px;color:#f44336;font-size:0.9rem;font-weight:600;cursor:pointer;">Voltar pra Hoje</button>
         </div>
@@ -2832,7 +2885,7 @@
           <div class="ag-legend-item active" data-filter="all" onclick="agFilterStatus('all')"><div class="ag-legend-dot" style="background:var(--text-muted);"></div> Todos</div>
           <div class="ag-legend-item active" data-filter="pending" onclick="agFilterStatus('pending')"><div class="ag-legend-dot" style="background:#ffc107;"></div> Pendente</div>
           <div class="ag-legend-item active" data-filter="confirmed" onclick="agFilterStatus('confirmed')"><div class="ag-legend-dot" style="background:#4caf50;"></div> Confirmado</div>
-          <div class="ag-legend-item active" data-filter="completed" onclick="agFilterStatus('completed')"><div class="ag-legend-dot" style="background:#2196f3;"></div> Concluido</div>
+          <div class="ag-legend-item active" data-filter="completed" onclick="agFilterStatus('completed')"><div class="ag-legend-dot" style="background:#2196f3;"></div> Concluído</div>
           <div class="ag-legend-item active" data-filter="pending_approval" onclick="agFilterStatus('pending_approval')"><div class="ag-legend-dot" style="background:#ff9800;"></div> Aguardando</div>
         </div>
         <div id="agGrid" style="overflow-x:auto;padding:0;"></div>
@@ -2848,12 +2901,12 @@
           <div style="display:flex;flex-direction:column;gap:12px;">
             <div><label style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:4px;">Nome do cliente *</label><input type="text" id="wiName" placeholder="Nome completo" style="width:100%;padding:10px 12px;background:var(--dark-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;"></div>
             <div><label style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:4px;">WhatsApp *</label><input type="tel" id="wiPhone" placeholder="(71) 99999-9999" style="width:100%;padding:10px 12px;background:var(--dark-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;"></div>
-            <div id="wiBirthdayRow" style="display:none;"><label style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:4px;">Aniversario <span style="font-size:0.72rem;opacity:0.6;">(opcional)</span></label><input type="date" id="wiBirthday" style="width:100%;padding:10px 12px;background:var(--dark-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;"><p id="wiBirthdayHint" style="font-size:0.72rem;color:#4caf50;margin-top:4px;display:none;"></p></div>
-            <div><label style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:4px;">Servico *</label><select id="wiService" style="width:100%;padding:10px 12px;background:var(--dark-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;"><option value="">Selecione</option><optgroup label="Servicos"><option value="Corte com maquina|35">Corte com maquina - R$35</option><option value="Corte com tesoura|45">Corte com tesoura - R$45</option><option value="Barba|30">Barba - R$30</option></optgroup><optgroup label="Combos"><option value="Corte + Barba|58">Corte + Barba - R$58</option><option value="Corte + Barba + Pigmentacao|75">Corte + Barba + Pigmentacao - R$75</option><option value="Corte + Barba + Relaxamento|100">Corte + Barba + Relaxamento - R$100</option><option value="Corte + Barba + Luzes|100">Corte + Barba + Luzes - R$100</option><option value="Corte + Barba + Platinacao|170">Corte + Barba + Platinacao - R$170</option></optgroup><optgroup label="Extras"><option value="Sobrancelha|20">Sobrancelha - R$20</option><option value="Pezinho|18">Pezinho - R$18</option><option value="Pigmentacao capilar|20">Pigmentacao capilar - R$20</option><option value="Sobrancelha pigmentada|35">Sobrancelha pigmentada - R$35</option><option value="Barba pigmentada|40">Barba pigmentada - R$40</option></optgroup><option value="Outro|0">Outro</option></select></div>
+            <div id="wiBirthdayRow" style="display:none;"><label style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:4px;">Aniversário <span style="font-size:0.72rem;opacity:0.6;">(opcional)</span></label><input type="date" id="wiBirthday" style="width:100%;padding:10px 12px;background:var(--dark-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;"><p id="wiBirthdayHint" style="font-size:0.72rem;color:#4caf50;margin-top:4px;display:none;"></p></div>
+            <div><label style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:4px;">Serviço *</label><select id="wiService" style="width:100%;padding:10px 12px;background:var(--dark-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;"><option value="">Selecione</option><optgroup label="Serviços"><option value="Corte com maquina|35">Corte com máquina - R$35</option><option value="Corte com tesoura|45">Corte com tesoura - R$45</option><option value="Barba|30">Barba - R$30</option></optgroup><optgroup label="Combos"><option value="Corte + Barba|58">Corte + Barba - R$58</option><option value="Corte + Barba + Pigmentacao|75">Corte + Barba + Pigmentação - R$75</option><option value="Corte + Barba + Relaxamento|100">Corte + Barba + Relaxamento - R$100</option><option value="Corte + Barba + Luzes|100">Corte + Barba + Luzes - R$100</option><option value="Corte + Barba + Platinacao|170">Corte + Barba + Platinação - R$170</option></optgroup><optgroup label="Extras"><option value="Sobrancelha|20">Sobrancelha - R$20</option><option value="Pezinho|18">Pezinho - R$18</option><option value="Pigmentacao capilar|20">Pigmentação capilar - R$20</option><option value="Sobrancelha pigmentada|35">Sobrancelha pigmentada - R$35</option><option value="Barba pigmentada|40">Barba pigmentada - R$40</option></optgroup><option value="Outro|0">Outro</option></select></div>
             <div><label style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:8px;">Barbeiro *</label><select id="wiBarber" style="display:none;"><option value="">Selecione</option></select><div id="wiBarberGrid" class="barber-grid" style="margin-bottom:4px;"></div></div>
             <div style="display:flex;gap:12px;">
               <div style="flex:1;"><label style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:4px;">Data</label><input type="date" id="wiDate" style="width:100%;padding:10px 12px;background:var(--dark-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;"></div>
-              <div style="flex:1;"><label style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:4px;">Horario</label><select id="wiTime" style="width:100%;padding:10px 12px;background:var(--dark-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;"><option value="">Agora</option><option value="08:00">08:00</option><option value="08:40">08:40</option><option value="09:20">09:20</option><option value="10:00">10:00</option><option value="10:40">10:40</option><option value="11:20">11:20</option><option value="12:00">12:00</option><option value="12:40">12:40</option><option value="13:20">13:20</option><option value="14:00">14:00</option><option value="14:40">14:40</option><option value="15:20">15:20</option><option value="16:00">16:00</option><option value="16:40">16:40</option><option value="17:20">17:20</option><option value="18:00">18:00</option><option value="18:40">18:40</option><option value="19:20">19:20</option><option value="20:00">20:00</option></select></div>
+              <div style="flex:1;"><label style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:4px;">Horário</label><select id="wiTime" style="width:100%;padding:10px 12px;background:var(--dark-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;"><option value="">Agora</option><option value="08:00">08:00</option><option value="08:40">08:40</option><option value="09:20">09:20</option><option value="10:00">10:00</option><option value="10:40">10:40</option><option value="11:20">11:20</option><option value="12:00">12:00</option><option value="12:40">12:40</option><option value="13:20">13:20</option><option value="14:00">14:00</option><option value="14:40">14:40</option><option value="15:20">15:20</option><option value="16:00">16:00</option><option value="16:40">16:40</option><option value="17:20">17:20</option><option value="18:00">18:00</option><option value="18:40">18:40</option><option value="19:20">19:20</option><option value="20:00">20:00</option></select></div>
             </div>
             <button id="wiSave" style="width:100%;padding:12px;background:var(--red);color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:8px;">Cadastrar</button>
             <div id="wiMsg" style="font-size:0.85rem;text-align:center;display:none;"></div>
@@ -2862,17 +2915,17 @@
       </div>
       <div id="panelRmk" style="display:none;">
         <div class="rmk-controls">
-          <div><label for="rmkDays">Clientes sem cortar ha</label><select id="rmkDays"><option value="7">7+ dias</option><option value="10">10+ dias</option><option value="15">15+ dias</option><option value="30" selected>30+ dias</option><option value="45">45+ dias</option><option value="60">60+ dias</option></select></div>
+          <div><label for="rmkDays">Clientes sem cortar há</label><select id="rmkDays"><option value="7">7+ dias</option><option value="10">10+ dias</option><option value="15">15+ dias</option><option value="30" selected>30+ dias</option><option value="45">45+ dias</option><option value="60">60+ dias</option></select></div>
           <button class="btn-admin-refresh" id="rmkRefresh">Buscar</button>
         </div>
         <div class="rmk-stats">
           <div class="admin-stat"><div class="admin-stat-num" style="color:#ff9800;" id="rmkTotal">0</div><div class="admin-stat-label">Clientes para remarketing</div></div>
         </div>
-        <div class="rmk-list" id="rmkList"><div class="rmk-empty">Selecione o periodo e clique em Buscar.</div></div>
+        <div class="rmk-list" id="rmkList"><div class="rmk-empty">Selecione o período e clique em Buscar.</div></div>
       </div>
       <div id="panelRank" style="display:none;">
         <div class="rmk-controls">
-          <div><label for="rankPeriod">Periodo</label><select id="rankPeriod"><option value="1" selected>Diario (Hoje)</option><option value="7">Semanal (7 dias)</option><option value="14">Quinzenal (14 dias)</option><option value="30">Mensal (30 dias)</option><option value="60">Bimestral (60 dias)</option><option value="90">Trimestral (90 dias)</option><option value="180">Semestral (180 dias)</option><option value="365">Anual (365 dias)</option><option value="0">Todo o periodo</option></select></div>
+          <div><label for="rankPeriod">Período</label><select id="rankPeriod"><option value="1" selected>Diário (Hoje)</option><option value="7">Semanal (7 dias)</option><option value="14">Quinzenal (14 dias)</option><option value="30">Mensal (30 dias)</option><option value="60">Bimestral (60 dias)</option><option value="90">Trimestral (90 dias)</option><option value="180">Semestral (180 dias)</option><option value="365">Anual (365 dias)</option><option value="0">Todo o período</option></select></div>
           <button class="btn-admin-refresh" id="rankRefresh">Atualizar</button>
         </div>
         <div class="rmk-list" id="rankList"><div class="rmk-empty">Clique em Atualizar para ver o ranking.</div></div>
@@ -2886,7 +2939,7 @@
               <div><label style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:4px;">Produto *</label><select id="pdvProduct" style="width:100%;padding:10px 12px;background:var(--dark-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;"><option value="">Carregando...</option></select></div>
               <div><label style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:4px;">Quantidade</label><input type="number" id="pdvQty" value="1" min="1" style="width:100%;padding:10px 12px;background:var(--dark-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;"></div>
               <div><label style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:4px;">Barbeiro *</label><select id="pdvBarber" style="width:100%;padding:10px 12px;background:var(--dark-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;"><option value="">Selecione</option></select></div>
-              <div><label style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:4px;">Pagamento</label><select id="pdvPayment" style="width:100%;padding:10px 12px;background:var(--dark-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;"><option value="dinheiro">Dinheiro</option><option value="pix">PIX</option><option value="debito">Debito</option><option value="credito">Credito</option></select></div>
+              <div><label style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:4px;">Pagamento</label><select id="pdvPayment" style="width:100%;padding:10px 12px;background:var(--dark-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;"><option value="dinheiro">Dinheiro</option><option value="pix">PIX</option><option value="debito">Débito</option><option value="credito">Crédito</option></select></div>
               <div><label style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:4px;">Cliente (opcional)</label><input type="text" id="pdvClient" placeholder="Nome do cliente" style="width:100%;padding:10px 12px;background:var(--dark-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;"></div>
               <div style="background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center;margin-top:8px;">
                 <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;">Total</div>
@@ -2922,7 +2975,7 @@
             <div style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:16px;">Adicionar <span style="color:var(--red);">Produto</span></div>
             <div style="display:flex;flex-direction:column;gap:12px;">
               <input type="text" id="pdvNewName" placeholder="Nome do produto" style="width:100%;padding:10px 12px;background:var(--dark);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;">
-              <input type="number" id="pdvNewPrice" placeholder="Preco (ex: 35)" style="width:100%;padding:10px 12px;background:var(--dark);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;">
+              <input type="number" id="pdvNewPrice" placeholder="Preço (ex: 35)" style="width:100%;padding:10px 12px;background:var(--dark);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;">
               <input type="number" id="pdvNewStock" placeholder="Estoque inicial" value="10" style="width:100%;padding:10px 12px;background:var(--dark);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;">
               <div style="display:flex;gap:8px;">
                 <button id="pdvSaveProduct" style="flex:1;padding:12px;background:var(--red);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;">Salvar</button>
@@ -2966,11 +3019,11 @@
             <div class="crm-detail-header" id="crmDetailHeader"></div>
             <div class="crm-detail-stats" id="crmDetailStats"></div>
             <div class="fin-section" style="padding:0;">
-              <div class="fin-section-title" style="font-size:0.9rem;">Historico de Atendimentos</div>
+              <div class="fin-section-title" style="font-size:0.9rem;">Histórico de Atendimentos</div>
               <div class="crm-detail-history" id="crmDetailHistory"></div>
             </div>
             <div style="margin-top:16px;">
-              <label style="font-size:0.75rem;color:var(--text-muted);display:block;margin-bottom:4px;">Observacoes do cliente</label>
+              <label style="font-size:0.75rem;color:var(--text-muted);display:block;margin-bottom:4px;">Observações do cliente</label>
               <textarea id="crmDetailNotes" style="width:100%;height:60px;padding:10px;background:var(--dark);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.85rem;outline:none;resize:vertical;" placeholder="Ex: Prefere corte degradê, alergia a produto X..."></textarea>
               <div style="display:flex;gap:8px;margin-top:8px;">
                 <button id="crmSaveNotes" style="padding:8px 16px;background:var(--red);color:#fff;border:none;border-radius:6px;font-size:0.82rem;font-weight:600;cursor:pointer;">Salvar</button>
@@ -2988,7 +3041,7 @@
             <div class="loyalty-rule-icon">🏆</div>
             <div class="loyalty-rule-info">
               <div class="loyalty-rule-title">Cortes para Recompensa</div>
-              <div class="loyalty-rule-desc">A cada 4 cortes, o cliente ganha 1 corte gratis</div>
+              <div class="loyalty-rule-desc">A cada 4 cortes, o cliente ganha 1 corte grátis</div>
             </div>
             <input type="number" id="loyaltyTarget" min="2" max="20" value="4">
             <button id="loyaltySaveConfig" style="padding:8px 16px;background:var(--red);color:#fff;border:none;border-radius:6px;font-size:0.82rem;font-weight:600;cursor:pointer;">Salvar</button>
@@ -2996,8 +3049,8 @@
           <div class="loyalty-rule">
             <div class="loyalty-rule-icon">🎂</div>
             <div class="loyalty-rule-info">
-              <div class="loyalty-rule-title">Desconto de Aniversario</div>
-              <div class="loyalty-rule-desc">Desconto automatico no mes do aniversario</div>
+              <div class="loyalty-rule-title">Desconto de Aniversário</div>
+              <div class="loyalty-rule-desc">Desconto automático no mês do aniversário</div>
             </div>
             <input type="number" id="loyaltyBirthday" min="0" max="100" value="20" style="width:55px;">
             <span style="color:var(--text-muted);font-size:0.85rem;">%</span>
@@ -3012,7 +3065,7 @@
       <!-- ===== PAINEL PLANOS/ASSINATURAS ===== -->
       <div id="panelPlans" style="display:none;">
         <div class="fin-section" style="padding-top:20px;">
-          <div class="fin-section-title">Planos Disponiveis <button id="planAddBtn" style="padding:6px 14px;background:rgba(76,175,80,0.15);color:#4caf50;border:none;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;">+ Novo Plano</button></div>
+          <div class="fin-section-title">Planos Disponíveis <button id="planAddBtn" style="padding:6px 14px;background:rgba(76,175,80,0.15);color:#4caf50;border:none;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;">+ Novo Plano</button></div>
         </div>
         <div class="plan-list" id="planList"></div>
         <div class="admin-stats" id="planStats"></div>
@@ -3040,7 +3093,7 @@
               <input type="text" id="planName" placeholder="Nome do plano (ex: Plano Barba)" style="width:100%;padding:10px 12px;background:var(--dark);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;">
               <input type="number" id="planPrice" placeholder="Valor mensal (ex: 89)" style="width:100%;padding:10px 12px;background:var(--dark);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;">
               <div><label style="font-size:0.75rem;color:var(--text-muted);display:block;margin-bottom:4px;">Quantidade de cortes do pacote</label><input type="number" id="planCuts" min="1" max="30" value="4" placeholder="4" style="width:100%;padding:10px 12px;background:var(--dark);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;"></div>
-              <textarea id="planDesc" placeholder="Observacoes (opcional)" style="width:100%;height:60px;padding:10px 12px;background:var(--dark);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.85rem;outline:none;resize:vertical;"></textarea>
+              <textarea id="planDesc" placeholder="Observações (opcional)" style="width:100%;height:60px;padding:10px 12px;background:var(--dark);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.85rem;outline:none;resize:vertical;"></textarea>
               <div style="display:flex;gap:8px;">
                 <button id="planSave" style="flex:1;padding:12px;background:var(--red);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;">Salvar</button>
                 <button onclick="document.getElementById('planModal').style.display='none'" style="flex:1;padding:12px;background:rgba(255,255,255,0.08);color:var(--text);border:1px solid var(--border);border-radius:8px;font-weight:600;cursor:pointer;">Cancelar</button>
@@ -3072,16 +3125,16 @@
           <div id="gerMsg" style="font-size:0.82rem;margin-bottom:8px;display:none;"></div>
           <div style="overflow-x:auto;">
             <table class="fin-commission-table" id="gerTable">
-              <thead><tr><th>Nome</th><th>Senha</th><th>Comissao %</th><th>Ativo</th><th>Acoes</th></tr></thead>
+              <thead><tr><th>Nome</th><th>Senha</th><th>Comissão %</th><th>Ativo</th><th>Ações</th></tr></thead>
               <tbody id="gerBody"></tbody>
             </table>
           </div>
         </div>
         <div class="fin-section">
-          <div class="fin-section-title">Senhas Padrao</div>
+          <div class="fin-section-title">Senhas Padrão</div>
           <div style="font-size:0.85rem;color:var(--text-muted);line-height:1.8;">
             <div>Dono: <strong style="color:var(--red);">new0000</strong></div>
-            <div style="margin-top:4px;">Barbeiros acessam com a senha individual (editavel acima).</div>
+            <div style="margin-top:4px;">Barbeiros acessam com a senha individual (editável acima).</div>
             <div style="margin-top:4px;">URL de acesso: <strong>seusite.com/?admin</strong></div>
           </div>
         </div>
@@ -3097,14 +3150,14 @@
           <button class="fin-tab-sub active" onclick="finSwitchSub('dashboard')">Dashboard</button>
           <button class="fin-tab-sub" onclick="finSwitchSub('despesas')">Despesas</button>
           <button class="fin-tab-sub" onclick="finSwitchSub('fluxo')">Fluxo de Caixa</button>
-          <button class="fin-tab-sub" onclick="finSwitchSub('comissoes')">Comissoes</button>
+          <button class="fin-tab-sub" onclick="finSwitchSub('comissoes')">Comissões</button>
           <button class="fin-tab-sub" onclick="finSwitchSub('pagamentos')">Pagamentos</button>
         </div>
         <!-- Date range -->
         <div style="display:flex;gap:12px;align-items:center;padding:12px 24px;flex-wrap:wrap;">
           <label style="font-size:0.75rem;color:var(--text-muted);">De</label>
           <input type="date" id="finDateStart" style="padding:8px 12px;background:var(--dark);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.82rem;outline:none;">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Ate</label>
+          <label style="font-size:0.75rem;color:var(--text-muted);">Até</label>
           <input type="date" id="finDateEnd" style="padding:8px 12px;background:var(--dark);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.82rem;outline:none;">
           <button onclick="finLoadAll()" style="padding:8px 16px;background:var(--red);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:0.78rem;">Atualizar</button>
         </div>
@@ -3112,7 +3165,7 @@
         <div id="finSubDashboard">
           <div class="fin-grid" id="finKpiGrid"></div>
           <div class="fin-section">
-            <div class="fin-section-title">Receita Diaria</div>
+            <div class="fin-section-title">Receita Diária</div>
             <div class="fin-chart" id="finDailyChart"></div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:0 24px 24px;">
@@ -3122,7 +3175,7 @@
               <div class="fin-chart-labels" id="finBarberLabels"></div>
             </div>
             <div class="fin-chart" style="margin:0;">
-              <div class="fin-section-title" style="border:none;padding:0;margin-bottom:12px;">Servicos</div>
+              <div class="fin-section-title" style="border:none;padding:0;margin-bottom:12px;">Serviços</div>
               <div id="finServicesList"></div>
             </div>
           </div>
@@ -3133,14 +3186,14 @@
             <div class="fin-expense-form">
               <div style="font-family:var(--font-display);font-size:0.95rem;color:var(--red);margin-bottom:12px;">Nova Despesa</div>
               <div class="fin-form-grid">
-                <div><label>Descricao *</label><input type="text" id="finExpDesc" placeholder="Ex: Aluguel abril"></div>
+                <div><label>Descrição *</label><input type="text" id="finExpDesc" placeholder="Ex: Aluguel abril"></div>
                 <div><label>Valor (R$) *</label><input type="number" id="finExpAmount" placeholder="1500"></div>
-                <div><label>Categoria</label><select id="finExpCat"><option value="aluguel">Aluguel</option><option value="produtos">Produtos</option><option value="equipamentos">Equipamentos</option><option value="agua">Agua</option><option value="luz">Luz</option><option value="internet">Internet</option><option value="manutencao">Manutencao</option><option value="marketing">Marketing</option><option value="impostos">Impostos</option><option value="salarios">Salarios</option><option value="outros">Outros</option></select></div>
-                <div><label>Pagamento</label><select id="finExpPay"><option value="pix">PIX</option><option value="dinheiro">Dinheiro</option><option value="boleto">Boleto</option><option value="debito">Debito</option><option value="credito">Credito</option><option value="transferencia">Transferencia</option></select></div>
+                <div><label>Categoria</label><select id="finExpCat"><option value="aluguel">Aluguel</option><option value="produtos">Produtos</option><option value="equipamentos">Equipamentos</option><option value="agua">Água</option><option value="luz">Luz</option><option value="internet">Internet</option><option value="manutencao">Manutenção</option><option value="marketing">Marketing</option><option value="impostos">Impostos</option><option value="salarios">Salários</option><option value="outros">Outros</option></select></div>
+                <div><label>Pagamento</label><select id="finExpPay"><option value="pix">PIX</option><option value="dinheiro">Dinheiro</option><option value="boleto">Boleto</option><option value="debito">Débito</option><option value="credito">Crédito</option><option value="transferencia">Transferência</option></select></div>
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-top:10px;">
                 <div><label>Data</label><input type="date" id="finExpDate"></div>
-                <div><label>Recorrente?</label><select id="finExpRecur"><option value="0">Nao</option><option value="1">Sim (mensal)</option></select></div>
+                <div><label>Recorrente?</label><select id="finExpRecur"><option value="0">Não</option><option value="1">Sim (mensal)</option></select></div>
                 <div><label>Obs</label><input type="text" id="finExpNotes" placeholder="Opcional"></div>
                 <div><label>&nbsp;</label><button id="finExpSave" style="padding:10px 20px;background:var(--red);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:0.82rem;white-space:nowrap;">Salvar</button></div>
               </div>
@@ -3152,7 +3205,7 @@
             <div class="fin-chart" id="finExpCatChart"></div>
           </div>
           <div class="fin-section">
-            <div class="fin-section-title">Lancamentos <span id="finExpTotal" style="color:#f44336;font-size:0.85rem;"></span></div>
+            <div class="fin-section-title">Lançamentos <span id="finExpTotal" style="color:#f44336;font-size:0.85rem;"></span></div>
             <div style="overflow-x:auto;" id="finExpTable"></div>
           </div>
         </div>
@@ -3160,11 +3213,11 @@
         <div id="finSubFluxo" style="display:none;">
           <div class="fin-grid" id="finFluxoCards"></div>
           <div class="fin-section">
-            <div class="fin-section-title">Entradas vs Saidas</div>
+            <div class="fin-section-title">Entradas vs Saídas</div>
             <div class="fin-chart">
               <div class="fin-chart-bars" id="finFluxoBars" style="height:200px;"></div>
               <div class="fin-chart-labels" id="finFluxoLabels"></div>
-              <div class="fin-chart-legend"><span class="leg-receita">Entradas</span><span class="leg-despesa">Saidas</span></div>
+              <div class="fin-chart-legend"><span class="leg-receita">Entradas</span><span class="leg-despesa">Saídas</span></div>
             </div>
           </div>
           <div class="fin-section">
@@ -3172,21 +3225,21 @@
             <div style="overflow-x:auto;" id="finFluxoTable"></div>
           </div>
         </div>
-        <!-- SUB: Comissoes -->
-        <div id="finSubComissoes" style="display:none;">
+        <!-- SUB: Comissões -->
+        <div id="finSubComissões" style="display:none;">
           <div class="fin-section">
-            <div class="fin-section-title">Comissoes por Barbeiro <button id="finCommSave" style="padding:6px 16px;background:var(--red);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:0.78rem;">Salvar %</button></div>
+            <div class="fin-section-title">Comissões por Barbeiro <button id="finCommSave" style="padding:6px 16px;background:var(--red);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:0.78rem;">Salvar %</button></div>
             <div id="finCommMsg" style="font-size:0.82rem;padding:4px 0;display:none;"></div>
             <div style="overflow-x:auto;" id="finCommTable"></div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:0 24px 24px;">
             <div class="fin-chart" style="margin:0;">
-              <div class="fin-section-title" style="border:none;padding:0;margin-bottom:12px;">Comissao por Barbeiro</div>
+              <div class="fin-section-title" style="border:none;padding:0;margin-bottom:12px;">Comissão por Barbeiro</div>
               <div class="fin-chart-bars" id="finCommBars"></div>
               <div class="fin-chart-labels" id="finCommBarLabels"></div>
             </div>
             <div class="fin-chart" style="margin:0;">
-              <div class="fin-section-title" style="border:none;padding:0;margin-bottom:12px;">Receita Loja vs Comissoes</div>
+              <div class="fin-section-title" style="border:none;padding:0;margin-bottom:12px;">Receita Loja vs Comissões</div>
               <div id="finCommSummary"></div>
             </div>
           </div>
@@ -3209,7 +3262,7 @@
         <div style="display:flex;gap:12px;align-items:center;padding:12px 24px;flex-wrap:wrap;">
           <label style="font-size:0.75rem;color:var(--text-muted);">De</label>
           <input type="date" id="contabDateStart" style="padding:8px 12px;background:var(--dark);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.82rem;outline:none;">
-          <label style="font-size:0.75rem;color:var(--text-muted);">Ate</label>
+          <label style="font-size:0.75rem;color:var(--text-muted);">Até</label>
           <input type="date" id="contabDateEnd" style="padding:8px 12px;background:var(--dark);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.82rem;outline:none;">
           <button onclick="contabLoad()" style="padding:8px 16px;background:var(--red);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:0.78rem;">Atualizar</button>
         </div>
@@ -3234,7 +3287,7 @@
         <div id="contabSubMetas" style="display:none;">
           <div style="padding:0 24px;">
             <div class="fin-expense-form">
-              <div style="font-family:var(--font-display);font-size:0.95rem;color:var(--red);margin-bottom:12px;">Definir Metas do Mes</div>
+              <div style="font-family:var(--font-display);font-size:0.95rem;color:var(--red);margin-bottom:12px;">Definir Metas do Mês</div>
               <div style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;">
                 <div style="flex:1;min-width:160px;"><label>Meta de Receita (R$)</label><input type="number" id="contabMetaRec" placeholder="15000"></div>
                 <div style="flex:1;min-width:160px;"><label>Meta de Atendimentos</label><input type="number" id="contabMetaAtend" placeholder="300"></div>
@@ -3267,7 +3320,7 @@
         <span style="font-size:0.75rem;color:var(--text-muted);">Chave PIX:</span>
         <input type="text" id="pixKeyInput" value="71996365794" placeholder="CPF, telefone ou email">
       </div>
-      <div class="pix-info">Escaneie o QR Code ou copie o codigo acima.<br>Valido para pagamento imediato.</div>
+      <div class="pix-info">Escaneie o QR Code ou copie o código acima.<br>Válido para pagamento imediato.</div>
     </div>
   </div>
 
@@ -3323,7 +3376,7 @@
   </footer>
 
   <!-- WHATSAPP FLOAT -->
-  <a href="https://wa.me/5571996365794?text=Ola!%20Gostaria%20de%20agendar%20um%20horario%20na%20NewStylee!" class="wpp-float" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+  <a href="https://wa.me/5571996365794?text=Ol%C3%A1!%20Gostaria%20de%20agendar%20um%20hor%C3%A1rio%20na%20NewStylee!" class="wpp-float" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
     <span class="wpp-float-tooltip">Agendar horário</span>
     <span class="wpp-float-btn">
       <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -3528,7 +3581,7 @@
         }
         if (!barbers.length) barbers = Object.keys(BARBER_PHOTOS);
 
-        // Contar horarios ocupados HOJE por barbeiro
+        // Contar horários ocupados HOJE por barbeiro
         var today = new Date().toISOString().split('T')[0];
         var bookedToday = {};
         var nowH = new Date().getHours();
@@ -3593,7 +3646,7 @@
     // Carregar barbeiros ao iniciar
     loadBarberGrid();
 
-    // Buscar horarios ocupados de um barbeiro em uma data
+    // Buscar horários ocupados de um barbeiro em uma data
     async function fetchBookedSlots(barber, date) {
       if (!supabaseClient) return [];
       try {
@@ -3620,7 +3673,7 @@
       } catch(e) { console.error('Erro de conexao:', e); return []; }
     }
 
-    // Renderizar botoes de horario
+    // Renderizar botões de horário
     async function renderSlots() {
       const grid = document.getElementById('slotGrid');
       if (!bk.date || !bk.barber) {
@@ -3644,7 +3697,7 @@
       if (oldNotice) oldNotice.remove();
       var isCombo = bk.service && bk.service.indexOf('+') !== -1;
       if (isCombo) {
-        grid.insertAdjacentHTML('beforebegin', '<div id="comboNotice" style="text-align:center;padding:6px;font-size:0.78rem;color:#9c27b0;font-weight:600;">Combo ocupa 2 horarios consecutivos (80 min)</div>');
+        grid.insertAdjacentHTML('beforebegin', '<div id="comboNotice" style="text-align:center;padding:6px;font-size:0.78rem;color:#9c27b0;font-weight:600;">Combo ocupa 2 horários consecutivos (80 min)</div>');
       }
 
       let availCount = 0;
@@ -3669,7 +3722,7 @@
         }
         if (booked.includes(slot) || isPast || nextSlotTaken) {
           btn.classList.add('slot-taken');
-          btn.title = isPast ? 'Horario ja passou' : nextSlotTaken ? 'Combo precisa de 2 horarios livres' : 'Ja reservado';
+          btn.title = isPast ? 'Horário já passou' : nextSlotTaken ? 'Combo precisa de 2 horários livres' : 'Já reservado';
         } else {
           availCount++;
           btn.addEventListener('click', () => {
@@ -3693,7 +3746,7 @@
       }
     }
 
-    // Passo 5: Data + Horarios + Dados do cliente
+    // Passo 5: Data + Horários + Dados do cliente
     document.getElementById('bkName').addEventListener('input', function() { bk.name = this.value.trim(); checkConfirm(); });
     var bkPhoneTimer = null;
     document.getElementById('bkPhone').addEventListener('input', function() {
@@ -3832,7 +3885,7 @@
       const [y, m, d] = bk.date.split('-');
       const total = calcTotal();
       const lines = [
-        'Ola! Fiz um agendamento pelo site da NewStylee e aguardo confirmacao!',
+        'Olá! Fiz um agendamento pelo site da NewStylee e aguardo confirmação!',
         '',
         'Nome: ' + bk.name,
         'Telefone: ' + bk.phone,
@@ -3846,7 +3899,7 @@
         'Horário: ' + bk.time
       );
       if (bk.obs) lines.push('Obs: ' + bk.obs);
-      lines.push('', 'Aguardando confirmacao da barbearia!');
+      lines.push('', 'Aguardando confirmação da barbearia!');
 
       setTimeout(() => {
         const url = 'https://wa.me/5571996365794?text=' + encodeURIComponent(lines.join('\n'));
@@ -4186,7 +4239,7 @@
         var roleLabel = document.getElementById('adminRoleLabel');
 
         if (role === 'recepcao') {
-          roleLabel.textContent = 'RECEPCAO';
+          roleLabel.textContent = 'RECEPÇÃO';
           roleLabel.style.background = 'rgba(33,150,243,0.15)';
           roleLabel.style.color = '#2196f3';
           // Reception: agenda + walk-in + vendas + ranking + remarketing + crm + fidelidade
@@ -4236,6 +4289,124 @@
         document.getElementById('aDateEnd').value = agGridDate;
         adminSwitchTab('agenda');
         adminLoad();
+
+        // Tour guiado para Recepção (só na primeira vez)
+        if (role === 'recepcao' && !localStorage.getItem('ns_tour_recepcao')) {
+          setTimeout(function() { startRecepcaoTour(); }, 600);
+        }
+      }
+
+      // ===== TOUR GUIADO - RECEPÇÃO =====
+      function startRecepcaoTour() {
+        var steps = [
+          {
+            icon: '📋',
+            title: 'Agenda',
+            desc: 'Aqui você vê todos os agendamentos do dia. Pode filtrar por barbeiro e navegar entre os dias. Cada card mostra o cliente, serviço e horário.'
+          },
+          {
+            icon: '➕',
+            title: '+Atendimento',
+            desc: 'Use essa aba quando o cliente chegar sem agendamento (walk-in). Escolha o barbeiro, o serviço e registre o atendimento na hora.'
+          },
+          {
+            icon: '📨',
+            title: 'Remarketing',
+            desc: 'Aqui aparecem os clientes que não voltam há um tempo. Você pode mandar mensagem pelo WhatsApp para chamar eles de volta.'
+          },
+          {
+            icon: '🏆',
+            title: 'Ranking',
+            desc: 'Mostra qual barbeiro atendeu mais e quais serviços são os mais vendidos. Ótimo para acompanhar o desempenho da equipe.'
+          },
+          {
+            icon: '💰',
+            title: 'Vendas',
+            desc: 'Registre vendas de produtos (pomada, shampoo, etc). Escolha o produto, a forma de pagamento e pronto — tudo fica registrado.'
+          },
+          {
+            icon: '👥',
+            title: 'Clientes',
+            desc: 'Lista completa de todos os clientes. Veja o histórico, quantas vezes veio, quando foi a última visita e o serviço favorito.'
+          },
+          {
+            icon: '🎖️',
+            title: 'Fidelidade',
+            desc: 'Programa de fidelidade: a cada X cortes, o cliente ganha um grátis. Aqui você acompanha quantos cortes cada cliente já fez.'
+          }
+        ];
+
+        var currentStep = 0;
+
+        function renderTour() {
+          var existing = document.getElementById('tourOverlay');
+          if (existing) existing.remove();
+
+          var s = steps[currentStep];
+          var dots = '';
+          for (var i = 0; i < steps.length; i++) {
+            dots += '<div class="tour-dot' + (i === currentStep ? ' active' : '') + '"></div>';
+          }
+
+          var isFirst = currentStep === 0;
+          var isLast = currentStep === steps.length - 1;
+
+          var btns = '';
+          if (!isFirst) {
+            btns += '<button class="tour-btn tour-btn-prev" id="tourPrev">Anterior</button>';
+          }
+          btns += '<button class="tour-btn tour-btn-skip" id="tourSkip">Pular</button>';
+          if (isLast) {
+            btns += '<button class="tour-btn tour-btn-next" id="tourNext">Começar!</button>';
+          } else {
+            btns += '<button class="tour-btn tour-btn-next" id="tourNext">Próximo</button>';
+          }
+
+          var overlay = document.createElement('div');
+          overlay.id = 'tourOverlay';
+          overlay.className = 'tour-overlay';
+          overlay.innerHTML =
+            '<div class="tour-card">' +
+              '<div class="tour-icon">' + s.icon + '</div>' +
+              '<div class="tour-step-label">Passo ' + (currentStep + 1) + ' de ' + steps.length + '</div>' +
+              '<div class="tour-title">' + s.title + '</div>' +
+              '<div class="tour-desc">' + s.desc + '</div>' +
+              '<div class="tour-dots">' + dots + '</div>' +
+              '<div class="tour-btns">' + btns + '</div>' +
+            '</div>';
+          document.body.appendChild(overlay);
+
+          document.getElementById('tourNext').addEventListener('click', function() {
+            if (isLast) {
+              closeTour();
+            } else {
+              currentStep++;
+              renderTour();
+            }
+          });
+
+          if (!isFirst) {
+            document.getElementById('tourPrev').addEventListener('click', function() {
+              currentStep--;
+              renderTour();
+            });
+          }
+
+          document.getElementById('tourSkip').addEventListener('click', closeTour);
+
+          // Fechar clicando fora do card
+          overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) closeTour();
+          });
+        }
+
+        function closeTour() {
+          localStorage.setItem('ns_tour_recepcao', '1');
+          var el = document.getElementById('tourOverlay');
+          if (el) { el.style.opacity = '0'; el.style.transition = 'opacity .25s'; setTimeout(function() { el.remove(); }, 250); }
+        }
+
+        renderTour();
       }
 
       document.getElementById('adminLogoutBtn').addEventListener('click', () => {
@@ -4428,7 +4599,7 @@
             pendingApprovals = pendingApprovals || [];
             if (pendingApprovals.length > 0) {
               var apHtml = '<div style="padding:12px 16px;background:rgba(255,152,0,0.1);border:1px solid rgba(255,152,0,0.25);border-radius:8px;">';
-              apHtml += '<div style="font-weight:700;color:#ff9800;margin-bottom:10px;font-size:0.9rem;">&#9888; Atendimentos aguardando aprovacao (' + pendingApprovals.length + ')</div>';
+              apHtml += '<div style="font-weight:700;color:#ff9800;margin-bottom:10px;font-size:0.9rem;">&#9888; Atendimentos aguardando aprovação (' + pendingApprovals.length + ')</div>';
               pendingApprovals.forEach(function(b) {
                 var total = b.service_price || 0;
                 apHtml += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,152,0,0.15);flex-wrap:wrap;">';
@@ -4460,7 +4631,7 @@
       };
 
       window.rejectWalkin = async function(id) {
-        if (!confirm('Rejeitar este atendimento? Nao contara para comissao.')) return;
+        if (!confirm('Rejeitar este atendimento? Não contará para comissão.')) return;
         if (!supabaseClient) return;
         await supabaseClient.from('bookings').update({ status: 'cancelled', obs: 'Atendimento rejeitado pelo dono' }).eq('id', id);
         if (window._adminLoad) window._adminLoad();
@@ -4497,7 +4668,7 @@
             byDate[b.date].push(b);
           });
           var dates = Object.keys(byDate).sort();
-          if (!dates.length) { grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Nenhum agendamento no periodo.</div>'; return; }
+          if (!dates.length) { grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Nenhum agendamento no período.</div>'; return; }
 
           var h = '';
           dates.forEach(function(dt) {
@@ -4520,7 +4691,7 @@
             byDate[dt].forEach(function(b) {
               var isAguardando = b.status === 'pending' && b.obs && b.obs.indexOf('[AGUARDANDO_APROVACAO]') !== -1;
               var statusColor = isAguardando ? '#ff9800' : b.status === 'confirmed' ? '#4caf50' : b.status === 'completed' ? '#2196f3' : '#ffc107';
-              var statusLabel = isAguardando ? 'Aguardando' : b.status === 'confirmed' ? 'Confirmado' : b.status === 'completed' ? 'Concluido' : 'Pendente';
+              var statusLabel = isAguardando ? 'Aguardando' : b.status === 'confirmed' ? 'Confirmado' : b.status === 'completed' ? 'Concluído' : 'Pendente';
               var total = b.service_price || 0;
               if (b.extras && Array.isArray(b.extras)) b.extras.forEach(function(e) { total += (e.price || 0); });
               var isBday = birthdayPhones[b.customer_phone] ? true : false;
@@ -4666,7 +4837,7 @@
         }
       }
 
-      // Clicar em celula vazia da grade → ir pro Walk-in com barbeiro/horario preenchido
+      // Clicar em célula vazia da grade → ir pro Walk-in com barbeiro/horário preenchido
       window.agCellClick = function(event, barber, slot) {
         // Se clicou num booking, deixa o onclick do booking tratar
         if (event.target.closest('.ag-cell-booking')) return;
@@ -4683,7 +4854,7 @@
         // Preencher data
         var wiDate = document.getElementById('wiDate');
         if (wiDate) wiDate.value = agGridDate;
-        // Preencher horario
+        // Preencher horário
         var wiTime = document.getElementById('wiTime');
         if (wiTime) wiTime.value = slot;
         // Scroll pro topo
@@ -4704,7 +4875,7 @@
         }
         var ph = (b.customer_phone || '').replace(/\D/g, '');
         var [y, m, d] = (b.date || '').split('-');
-        var statusLabel = b.status === 'pending' ? 'Pendente' : b.status === 'confirmed' ? 'Confirmado' : b.status === 'completed' ? 'Concluido' : 'Cancelado';
+        var statusLabel = b.status === 'pending' ? 'Pendente' : b.status === 'confirmed' ? 'Confirmado' : b.status === 'completed' ? 'Concluído' : 'Cancelado';
 
         var isSemPref = !b.barber || b.barber === 'Sem preferência';
         var actions = '';
@@ -4735,10 +4906,10 @@
         popup.onclick = function(e) { if (e.target === popup) popup.remove(); };
         popup.innerHTML = '<div style="background:var(--dark-card);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:400px;width:90%;">'
           + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><span style="font-family:var(--font-display);font-size:1.2rem;">' + adminEsc(b.customer_name) + '</span><span style="font-size:0.75rem;padding:4px 10px;border-radius:12px;background:rgba(255,255,255,0.05);">' + statusLabel + '</span></div>'
-          + '<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;">Servico: <strong style="color:var(--text);">' + adminEsc(b.service) + '</strong></div>'
+          + '<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;">Serviço: <strong style="color:var(--text);">' + adminEsc(b.service) + '</strong></div>'
           + (extras ? '<div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:4px;">Extras: ' + adminEsc(extras) + '</div>' : '')
           + '<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;">Barbeiro: <strong style="color:var(--text);">' + adminEsc(b.barber) + '</strong></div>'
-          + '<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;">Horario: <strong style="color:var(--text);">' + (b.time_slot || '') + '</strong> — ' + (d||'') + '/' + (m||'') + '/' + (y||'') + '</div>'
+          + '<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;">Horário: <strong style="color:var(--text);">' + (b.time_slot || '') + '</strong> — ' + (d||'') + '/' + (m||'') + '/' + (y||'') + '</div>'
           + '<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;">Tel: ' + adminEsc(b.customer_phone) + '</div>'
           + (function() { var pm = b.payment_method || ''; if (!pm && b.obs) { var m = b.obs.match(/\[PGTO:(\w+)\]/); if (m) pm = m[1]; } return pm ? '<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;">Pagamento: <strong style="color:#4caf50;">' + adminEsc(pm.toUpperCase()) + '</strong></div>' : ''; })()
           + '<div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:var(--red);margin:12px 0;">R$ ' + total + '</div>'
@@ -4836,7 +5007,7 @@
         var svcTotal = 0;
         svcList.forEach(function(s) { svcTotal += s[1]; });
 
-        var donutHtml = '<div class="achart-box"><div class="achart-title">Servicos Mais Vendidos</div><div class="achart-donut-wrap">';
+        var donutHtml = '<div class="achart-box"><div class="achart-title">Serviços Mais Vendidos</div><div class="achart-donut-wrap">';
         donutHtml += '<div class="achart-donut"><svg viewBox="0 0 42 42"><circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--border)" stroke-width="5"/>';
 
         var offset = 0;
@@ -4894,7 +5065,7 @@
 
       function adminRender(bks) {
         const tl = document.getElementById('aTimeline');
-        if (!bks.length) { tl.innerHTML = '<div class="admin-timeline-empty">Nenhum agendamento no periodo.</div>'; return; }
+        if (!bks.length) { tl.innerHTML = '<div class="admin-timeline-empty">Nenhum agendamento no período.</div>'; return; }
         // Check if multi-day
         var dateStart = document.getElementById('aDate').value;
         var dateEnd = document.getElementById('aDateEnd').value || dateStart;
@@ -4920,7 +5091,7 @@
           h += '<div class="admin-time-group"><div class="admin-time-label">' + time + '</div>';
           timeGroups[time].forEach(b => {
             const sc = 'st-' + b.status;
-            const sLabel = b.status === 'pending' ? 'Pendente' : b.status === 'confirmed' ? 'Confirmado' : b.status === 'completed' ? 'Concluido' : 'Cancelado';
+            const sLabel = b.status === 'pending' ? 'Pendente' : b.status === 'confirmed' ? 'Confirmado' : b.status === 'completed' ? 'Concluído' : 'Cancelado';
             const bc = 'ab-' + b.status;
             let extras = '';
             let total = b.service_price;
@@ -5013,8 +5184,8 @@
           + '📋 ' + (bk.service || '') + '\n'
           + '💈 Barbeiro: ' + (bk.barber || '') + '\n'
           + '📅 Data: ' + (d2 || '') + '/' + (m || '') + '/' + (y || '') + '\n'
-          + '🕐 Horario: ' + slot + '\n\n'
-          + '⏳ Faltam *' + tempoTexto + '* pro seu horario!\n\n'
+          + '🕐 Horário: ' + slot + '\n\n'
+          + '⏳ Faltam *' + tempoTexto + '* pro seu horário!\n\n'
           + 'Te esperamos! ✂️\n— NewStylee Barbearia';
 
         window.open('https://wa.me/55' + phone + '?text=' + encodeURIComponent(msg), '_blank');
@@ -5026,7 +5197,7 @@
       setInterval(() => { if (sessionStorage.getItem('ns_admin') === 'true') adminLoad(); }, 30000);
     }
 
-    // Funcao global para os botoes onclick
+    // Função global para os botões onclick
     window.adminUpdate = async function(id, st) {
       if (!supabaseClient) return;
       const { error } = await supabaseClient.from('bookings').update({ status: st }).eq('id', id);
@@ -5051,7 +5222,7 @@
               + '📋 ' + (bk.service || '') + '\n'
               + '💈 Barbeiro: ' + (bk.barber || '') + '\n'
               + '📅 Data: ' + (d || '') + '/' + (m || '') + '/' + (y || '') + '\n'
-              + '🕐 Horario: ' + (bk.time_slot || '') + '\n'
+              + '🕐 Horário: ' + (bk.time_slot || '') + '\n'
               + '💰 Total: R$ ' + total + '\n\n'
               + 'Te esperamos! Qualquer duvida so chamar. ✂️\n— NewStylee Barbearia';
             var wppUrl = 'https://wa.me/55' + phone + '?text=' + encodeURIComponent(msg);
@@ -5100,7 +5271,7 @@
             if (totalVisits > 0) {
               var remaining = loyaltyTarget - (totalVisits % loyaltyTarget);
               if (remaining === loyaltyTarget) {
-                adminAlert = '🏆 CORTE GRATIS! ' + bk.customer_name + ' completou ' + loyaltyTarget + ' cortes e GANHOU 1 CORTE DE CORTESIA!\n\nO proximo corte dele e por conta da casa.';
+                adminAlert = '🏆 CORTE GRATIS! ' + bk.customer_name + ' completou ' + loyaltyTarget + ' cortes e GANHOU 1 CORTE DE CORTESIA!\n\nO próximo corte dele é por conta da casa.';
               }
             }
 
@@ -5112,7 +5283,7 @@
             var msg = 'Ola ' + firstName + '! Obrigado pela visita na NewStylee! 🙏\n\n'
               + 'Ficou show! Esperamos que tenha curtido. 💈'
               + planMsg
-              + '\n\nAte a proxima! ✂️\n— NewStylee Barbearia';
+              + '\n\nAté a próxima! ✂️\n— NewStylee Barbearia';
             var wppUrl = 'https://wa.me/55' + phone + '?text=' + encodeURIComponent(msg);
             window.open(wppUrl, '_blank');
           }
@@ -5189,7 +5360,7 @@
           if (!data || !data.length) {
             row.style.display = 'block';
             hint.style.display = 'block';
-            hint.textContent = 'Cliente novo! Peca o aniversario dele.';
+            hint.textContent = 'Cliente novo! Peça o aniversário dele.';
           } else {
             row.style.display = 'none';
             hint.style.display = 'none';
@@ -5256,7 +5427,7 @@
             await supabaseClient.from('customer_notes').upsert({ customer_phone: phone, customer_name: name, birthday: bday, notes: '' }, { onConflict: 'customer_phone' });
           } catch(e) { console.error('Birthday save error:', e); }
         }
-        var successMsg = canApprove ? 'Atendimento cadastrado com sucesso!' : 'Atendimento enviado para aprovacao do dono!';
+        var successMsg = canApprove ? 'Atendimento cadastrado com sucesso!' : 'Atendimento enviado para aprovação do dono!';
         msgEl.style.display = 'block'; msgEl.style.color = '#4caf50'; msgEl.textContent = successMsg;
         document.getElementById('wiName').value = '';
         document.getElementById('wiPhone').value = '';
@@ -5315,7 +5486,7 @@
           var svc = b.service || '';
           clients[phone].serviceCounts[svc] = (clients[phone].serviceCounts[svc] || 0) + 1;
         });
-        // Determinar servico preferido (mais frequente)
+        // Determinar serviço preferido (mais frequente)
         Object.values(clients).forEach(function(c) {
           var top = ''; var topN = 0;
           Object.keys(c.serviceCounts).forEach(function(s) {
@@ -5402,7 +5573,7 @@
         });
 
         var list = Object.values(barbers);
-        // Servico mais feito
+        // Serviço mais feito
         list.forEach(function(bb) {
           var top = ''; var topN = 0;
           Object.keys(bb.services).forEach(function(s) {
@@ -5415,7 +5586,7 @@
         list.sort(function(a, b) { return b.total - a.total; });
 
         if (!list.length) {
-          document.getElementById('rankList').innerHTML = '<div class="rmk-empty">Nenhum atendimento encontrado no periodo.</div>';
+          document.getElementById('rankList').innerHTML = '<div class="rmk-empty">Nenhum atendimento encontrado no período.</div>';
           return;
         }
 
@@ -5496,7 +5667,7 @@
         var price = parseInt(opt.getAttribute('data-price')) || 0;
         var stock = parseInt(opt.getAttribute('data-stock')) || 0;
         if (qty > stock) {
-          msg.style.display = 'block'; msg.style.color = '#f44336'; msg.textContent = 'Estoque insuficiente! Disponivel: ' + stock;
+          msg.style.display = 'block'; msg.style.color = '#f44336'; msg.textContent = 'Estoque insuficiente! Disponível: ' + stock;
           setTimeout(function() { msg.style.display = 'none'; }, 3000); return;
         }
 
@@ -5535,7 +5706,7 @@
         var h = '';
         sales.forEach(function(s) {
           var time = new Date(s.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-          var payLabel = { dinheiro: 'Dinheiro', pix: 'PIX', debito: 'Debito', credito: 'Credito' };
+          var payLabel = { dinheiro: 'Dinheiro', pix: 'PIX', debito: 'Débito', credito: 'Crédito' };
           h += '<div class="rmk-card" style="margin-bottom:8px;">';
           h += '<div class="rmk-card-info">';
           h += '<div class="rmk-card-client">' + adminEsc(s.product_name) + ' x' + s.quantity + '</div>';
@@ -5714,7 +5885,7 @@
       document.getElementById('pixOverlay').classList.add('open');
     };
 
-    // Funcao global para recarregar selects de barbeiros
+    // Função global para recarregar selects de barbeiros
     window.reloadBarberSelects = function() {
       if (!supabaseClient) return;
       supabaseClient.from('barber_accounts').select('name').eq('active', true).order('name').then(function(res) {
@@ -5900,9 +6071,9 @@
 
       h += '</div>';
 
-      // Comissao do mes
+      // Comissão do mês
       h += '<div style="padding:20px 24px;background:rgba(255,152,0,0.06);border-bottom:1px solid var(--border);text-align:center;">';
-      h += '<div style="font-size:0.82rem;color:var(--text-muted);">Sua comissao do mes (' + pct + '%)</div>';
+      h += '<div style="font-size:0.82rem;color:var(--text-muted);">Sua comissão do mês (' + pct + '%)</div>';
       h += '<div style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:#ff9800;">R$ ' + monthComm + '</div>';
       h += '</div>';
 
@@ -5941,7 +6112,7 @@
       event.target.classList.add('active');
       if (sub === 'despesas') finRenderDespesas();
       if (sub === 'fluxo') finRenderFluxo();
-      if (sub === 'comissoes') finRenderComissoes();
+      if (sub === 'comissoes') finRenderComissões();
       if (sub === 'pagamentos') finRenderPayments();
     }
 
@@ -6006,7 +6177,7 @@
 
       // KPI Cards
       var kpi = '';
-      kpi += '<div class="fin-card fc-green"><div class="fin-card-icon">&#128176;</div><div class="fin-card-value">R$ ' + recTotal.toLocaleString('pt-BR') + '</div><div class="fin-card-label">Receita Total</div><div class="fin-card-sub">Servicos R$' + recServicos + ' + Produtos R$' + recProdutos + '</div></div>';
+      kpi += '<div class="fin-card fc-green"><div class="fin-card-icon">&#128176;</div><div class="fin-card-value">R$ ' + recTotal.toLocaleString('pt-BR') + '</div><div class="fin-card-label">Receita Total</div><div class="fin-card-sub">Serviços R$' + recServicos + ' + Produtos R$' + recProdutos + '</div></div>';
       kpi += '<div class="fin-card fc-red"><div class="fin-card-icon">&#128200;</div><div class="fin-card-value">R$ ' + totalDesp.toLocaleString('pt-BR') + '</div><div class="fin-card-label">Despesas</div><div class="fin-card-sub">' + finExpenses.length + ' lancamentos</div></div>';
       kpi += '<div class="fin-card ' + (lucro >= 0 ? 'fc-blue' : 'fc-red') + '"><div class="fin-card-icon">&#128178;</div><div class="fin-card-value">R$ ' + lucro.toLocaleString('pt-BR') + '</div><div class="fin-card-label">Lucro Liquido</div><div class="fin-card-sub">Margem: ' + margem + '%</div></div>';
       kpi += '<div class="fin-card fc-gold"><div class="fin-card-icon">&#9989;</div><div class="fin-card-value">' + atend + '</div><div class="fin-card-label">Atendimentos</div><div class="fin-card-sub">Ticket medio: R$ ' + ticket + '</div></div>';
@@ -6029,7 +6200,7 @@
         barsHtml += '</div>'; labelsHtml += '</div>';
         document.getElementById('finDailyChart').innerHTML = barsHtml + labelsHtml;
       } else {
-        document.getElementById('finDailyChart').innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:40px;">Sem dados no periodo</div>';
+        document.getElementById('finDailyChart').innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:40px;">Sem dados no período</div>';
       }
 
       // Barber bars
@@ -6060,7 +6231,7 @@
     function finRenderDespesas() {
       var catTotals = {}, total = 0;
       var CAT_ICONS = { aluguel:'&#127968;', produtos:'&#128230;', equipamentos:'&#128295;', agua:'&#128167;', luz:'&#9889;', internet:'&#127760;', manutencao:'&#128736;', marketing:'&#128226;', impostos:'&#128196;', salarios:'&#128181;', outros:'&#128221;' };
-      var PAY_LABELS = { dinheiro:'Dinheiro', pix:'PIX', debito:'Debito', credito:'Credito', boleto:'Boleto', transferencia:'Transf.' };
+      var PAY_LABELS = { dinheiro:'Dinheiro', pix:'PIX', debito:'Débito', credito:'Crédito', boleto:'Boleto', transferencia:'Transf.' };
 
       finExpenses.forEach(function(e) {
         total += e.amount; catTotals[e.category] = (catTotals[e.category] || 0) + e.amount;
@@ -6148,7 +6319,7 @@
       document.getElementById('finFluxoTable').innerHTML = tbl;
     }
 
-    function finRenderComissoes() {
+    function finRenderComissões() {
       var commMap = {};
       finComms.forEach(function(c) { commMap[c.barber] = c.percentage; });
       var barbers = {};
@@ -6161,7 +6332,7 @@
       var allBarbers = Object.keys(barbers);
       allBarbers.sort();
 
-      var tbl = '<table style="width:100%;border-collapse:collapse;font-size:0.82rem;"><thead><tr><th style="text-align:left;padding:10px 12px;font-size:0.7rem;text-transform:uppercase;color:var(--text-muted);border-bottom:2px solid var(--border);">Barbeiro</th><th style="padding:10px 12px;font-size:0.7rem;text-transform:uppercase;color:var(--text-muted);border-bottom:2px solid var(--border);">%</th><th style="text-align:center;padding:10px 12px;font-size:0.7rem;text-transform:uppercase;color:var(--text-muted);border-bottom:2px solid var(--border);">Atend.</th><th style="text-align:right;padding:10px 12px;font-size:0.7rem;text-transform:uppercase;color:var(--text-muted);border-bottom:2px solid var(--border);">Receita</th><th style="text-align:right;padding:10px 12px;font-size:0.7rem;text-transform:uppercase;color:var(--text-muted);border-bottom:2px solid var(--border);">Comissao</th><th style="text-align:right;padding:10px 12px;font-size:0.7rem;text-transform:uppercase;color:var(--text-muted);border-bottom:2px solid var(--border);">Loja</th></tr></thead><tbody>';
+      var tbl = '<table style="width:100%;border-collapse:collapse;font-size:0.82rem;"><thead><tr><th style="text-align:left;padding:10px 12px;font-size:0.7rem;text-transform:uppercase;color:var(--text-muted);border-bottom:2px solid var(--border);">Barbeiro</th><th style="padding:10px 12px;font-size:0.7rem;text-transform:uppercase;color:var(--text-muted);border-bottom:2px solid var(--border);">%</th><th style="text-align:center;padding:10px 12px;font-size:0.7rem;text-transform:uppercase;color:var(--text-muted);border-bottom:2px solid var(--border);">Atend.</th><th style="text-align:right;padding:10px 12px;font-size:0.7rem;text-transform:uppercase;color:var(--text-muted);border-bottom:2px solid var(--border);">Receita</th><th style="text-align:right;padding:10px 12px;font-size:0.7rem;text-transform:uppercase;color:var(--text-muted);border-bottom:2px solid var(--border);">Comissão</th><th style="text-align:right;padding:10px 12px;font-size:0.7rem;text-transform:uppercase;color:var(--text-muted);border-bottom:2px solid var(--border);">Loja</th></tr></thead><tbody>';
       var gRev = 0, gComm = 0, gLoja = 0, gCount = 0;
       var COLORS = ['#e63946','#4caf50','#2196f3','#ff9800','#9c27b0','#00bcd4','#ffc107','#e91e63'];
       var barItems = [];
@@ -6191,16 +6362,16 @@
       document.getElementById('finCommBarLabels').innerHTML = clHtml;
 
       // Summary
-      document.getElementById('finCommSummary').innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;text-align:center;"><div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;">Total Comissoes</div><div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:#ff9800;">R$ ' + gComm + '</div></div><div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;">Receita Loja</div><div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:#4caf50;">R$ ' + gLoja + '</div></div></div>';
+      document.getElementById('finCommSummary').innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;text-align:center;"><div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;">Total Comissões</div><div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:#ff9800;">R$ ' + gComm + '</div></div><div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;">Receita Loja</div><div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:#4caf50;">R$ ' + gLoja + '</div></div></div>';
     }
 
     function finRenderPayments() {
       var payMethods = {};
-      var PAY_LABELS = { dinheiro:'Dinheiro', pix:'PIX', debito:'Debito', credito:'Credito', boleto:'Boleto', transferencia:'Transf.' };
+      var PAY_LABELS = { dinheiro:'Dinheiro', pix:'PIX', debito:'Débito', credito:'Crédito', boleto:'Boleto', transferencia:'Transf.' };
       var PAY_ICONS = { dinheiro:'&#128181;', pix:'&#128241;', debito:'&#128179;', credito:'&#128179;', boleto:'&#128196;', transferencia:'&#127974;' };
 
       finBookings.forEach(function(b) {
-        // bookings don't have payment_method, count as 'servico'
+        // bookings don't have payment_method, count as 'serviço'
         payMethods['servicos'] = (payMethods['servicos'] || 0) + finBookingTotal(b);
       });
       finSales.forEach(function(s) {
@@ -6216,7 +6387,7 @@
       var COLORS = ['#e63946','#4caf50','#2196f3','#ff9800','#9c27b0','#00bcd4','#ffc107','#e91e63'];
       entries.forEach(function(p, i) {
         var pct = total > 0 ? Math.round((p[1] / total) * 100) : 0;
-        var label = PAY_LABELS[p[0]] || (p[0] === 'servicos' ? 'Servicos (Agendamento)' : p[0]);
+        var label = PAY_LABELS[p[0]] || (p[0] === 'servicos' ? 'Serviços (Agendamento)' : p[0]);
         var icon = PAY_ICONS[p[0]] || '&#128176;';
         html += '<div class="fin-row" style="padding:12px 0;"><span style="font-size:1.2rem;min-width:30px;">' + icon + '</span><span style="flex:1;font-weight:500;">' + label + '</span><div class="fin-bar-container"><div class="fin-bar" style="max-width:300px;"><div class="fin-bar-fill" style="width:' + pct + '%;background:' + COLORS[i % 8] + ';"></div></div><span style="font-size:0.75rem;color:var(--text-muted);min-width:40px;text-align:right;">' + pct + '%</span></div><span style="font-weight:700;min-width:100px;text-align:right;">R$ ' + p[1].toLocaleString('pt-BR') + '</span></div>';
       });
@@ -6262,11 +6433,11 @@
         promises.push(supabaseClient.from('commissions').upsert({ barber: barber, percentage: pct }, { onConflict: 'barber' }));
       });
       await Promise.all(promises);
-      var msg = document.getElementById('finCommMsg'); msg.textContent = 'Comissoes salvas!'; msg.style.color = '#4caf50'; msg.style.display = 'block';
+      var msg = document.getElementById('finCommMsg'); msg.textContent = 'Comissões salvas!'; msg.style.color = '#4caf50'; msg.style.display = 'block';
       setTimeout(function() { msg.style.display = 'none'; }, 3000);
       var { data } = await supabaseClient.from('commissions').select('*');
       finComms = data || [];
-      finRenderComissoes();
+      finRenderComissões();
     });
 
     // Delete expense
@@ -6360,7 +6531,7 @@
       h += '<div style="text-align:center;margin-bottom:24px;"><span style="font-family:var(--font-display);font-size:1.1rem;">Periodo: </span><span style="color:var(--red);">' + rs[2] + '/' + rs[1] + '/' + rs[0] + ' a ' + re[2] + '/' + re[1] + '/' + re[0] + '</span></div>';
 
       h += '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:8px;font-weight:600;font-size:0.88rem;"><span>&#128176; RECEITA BRUTA</span><span style="color:#4caf50;">R$ ' + recBruta + '</span></div>';
-      h += '<div style="display:flex;justify-content:space-between;padding:8px 16px 8px 32px;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.03);"><span>Receita de Servicos (' + contabBookings.length + ' atend.)</span><span>R$ ' + recServicos + '</span></div>';
+      h += '<div style="display:flex;justify-content:space-between;padding:8px 16px 8px 32px;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.03);"><span>Receita de Serviços (' + contabBookings.length + ' atend.)</span><span>R$ ' + recServicos + '</span></div>';
       h += '<div style="display:flex;justify-content:space-between;padding:8px 16px 8px 32px;font-size:0.82rem;"><span>Receita de Produtos (' + contabSales.length + ' vendas)</span><span>R$ ' + recProdutos + '</span></div></div>';
 
       h += '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:8px;font-weight:600;font-size:0.88rem;"><span>&#128181; (-) COMISSOES BARBEIROS</span><span style="color:#f44336;">- R$ ' + totalComm + '</span></div></div>';
@@ -6714,8 +6885,8 @@
         '<div class="crm-detail-stat"><div class="val" style="color:#4caf50;">R$ ' + c.total + '</div><div class="lbl">Total Gasto</div></div>' +
         '<div class="crm-detail-stat"><div class="val" style="color:#2196f3;">R$ ' + avgTicket + '</div><div class="lbl">Ticket Medio</div></div>' +
         '<div class="crm-detail-stat"><div class="val" style="color:' + cycleColor + ';">' + cycleText + '</div><div class="lbl">Ciclo Medio</div></div>' +
-        (c.nextExpected ? '<div class="crm-detail-stat" style="grid-column:1/-1;"><div class="val" style="font-size:0.95rem;color:' + cycleColor + ';">Proxima visita prevista: ' + nextText + (c.daysOverdue > 0 ? ' (' + c.daysOverdue + ' dias atrasado)' : c.daysOverdue === 0 ? ' (hoje!)' : ' (em ' + Math.abs(c.daysOverdue) + ' dias)') + '</div><div class="lbl">Previsao Inteligente</div></div>' : '') +
-        '<div class="crm-detail-stat"><div class="val" style="color:#ffc107;">' + (favService ? favService[0] : '-') + '</div><div class="lbl">Servico Top</div></div>' +
+        (c.nextExpected ? '<div class="crm-detail-stat" style="grid-column:1/-1;"><div class="val" style="font-size:0.95rem;color:' + cycleColor + ';">Próxima visita prevista:' + nextText + (c.daysOverdue > 0 ? ' (' + c.daysOverdue + ' dias atrasado)' : c.daysOverdue === 0 ? ' (hoje!)' : ' (em ' + Math.abs(c.daysOverdue) + ' dias)') + '</div><div class="lbl">Previsão Inteligente</div></div>' : '') +
+        '<div class="crm-detail-stat"><div class="val" style="color:#ffc107;">' + (favService ? favService[0] : '-') + '</div><div class="lbl">Serviço Top</div></div>' +
         (favBarber ? '<div class="crm-detail-stat"><div class="val" style="color:#00bcd4;">' + favBarber[0] + '</div><div class="lbl">Barbeiro Favorito</div></div>' : '');
 
       var histHtml = '';
