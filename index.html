@@ -6964,18 +6964,18 @@
         var daysSince = c.lastVisit ? Math.floor((new Date() - new Date(c.lastVisit)) / 86400000) : null;
         var timeLabel = c.visits === 0 ? 'Aguardando atendimento' : (daysSince !== null ? daysSince + 'd atras' : 'Sem visitas');
         var metaText = c.visits === 0 ? '<span>Agendamento pendente</span>' : '<span>' + c.visits + ' cortes</span><span>R$ ' + c.total + ' gasto</span><span>' + timeLabel + '</span>';
-        var offerBtn = '';
-        if (!clientSub) {
-          var firstName = c.name.split(' ')[0];
-          var offerMsg = encodeURIComponent('Oi ' + firstName + '! Aqui é da NewStylee Barbearia. Temos planos mensais de corte com desconto especial pra clientes como você! Quer saber mais? 💈✂');
-          offerBtn = '<a href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '?text=' + offerMsg + '" target="_blank" onclick="event.stopPropagation()" style="padding:5px 10px;background:rgba(76,175,80,0.15);color:#4caf50;border:none;border-radius:6px;font-size:0.72rem;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;">Oferecer plano</a>';
+        var planLabel = '';
+        if (clientSub && planInfo) {
+          planLabel = '<span class="crm-badge" style="background:rgba(156,39,176,0.15);color:#9c27b0;">📋 ' + adminEsc(planInfo.name) + '</span>';
+        } else {
+          planLabel = '<span style="font-size:0.7rem;color:#ff9800;">Sem plano</span>';
         }
         html += '<div class="crm-client" onclick="crmShowDetail(\'' + c.phone.replace(/'/g, "\\'") + '\')">' +
           '<div class="crm-avatar">' + initials + '</div>' +
           '<div class="crm-client-info"><div class="crm-client-name">' + adminEsc(c.name) + '</div>' +
           '<div class="crm-client-meta">' + metaText +
           (favService ? '<span>' + favService[0] + '</span>' : '') + '</div></div>' +
-          '<div class="crm-client-badges" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">' + badge + offerBtn + '</div></div>';
+          '<div class="crm-client-badges" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">' + badge + planLabel + '</div></div>';
       });
       document.getElementById('crmList').innerHTML = html;
       document.getElementById('crmCount').textContent = '(' + filtered.length + ')';
