@@ -2133,8 +2133,9 @@
     /* ===== GUIDED TOUR (Reception) ===== */
     .tour-overlay {
       position: fixed; inset: 0; z-index: 99999;
-      background: rgba(0,0,0,0.82);
-      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.55);
+      display: flex; align-items: flex-end; justify-content: center;
+      padding-bottom: 24px;
       animation: tourFadeIn .35s ease;
     }
     @keyframes tourFadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -4313,6 +4314,7 @@
           {
             icon: '📋',
             title: 'Agenda',
+            tab: 'agenda',
             desc: 'A grade mostra todos os agendamentos do dia, organizados por barbeiro e horário.<br><br>' +
               '<b>Setas &lt; &gt;</b> — Navega entre os dias<br>' +
               '<b>Botão HOJE</b> — Volta pro dia atual<br>' +
@@ -4325,6 +4327,7 @@
           {
             icon: '➕',
             title: '+Atendimento',
+            tab: 'walkin',
             desc: 'Cadastre o cliente que chegou sem agendar pelo site.<br><br>' +
               '<b>Nome e WhatsApp</b> — Dados do cliente (obrigatório)<br>' +
               '<b>Serviço</b> — Escolha o corte ou combo. Combos ocupam 2 horários<br>' +
@@ -4335,6 +4338,7 @@
           {
             icon: '📨',
             title: 'Remarketing',
+            tab: 'remarketing',
             desc: 'Clientes que não voltam há muito tempo aparecem aqui.<br><br>' +
               '<b>Filtro de dias</b> — Escolha: 7, 15, 30, 45 ou 60+ dias sem voltar<br>' +
               '<b>Buscar</b> — Carrega a lista de clientes inativos<br>' +
@@ -4344,6 +4348,7 @@
           {
             icon: '🏆',
             title: 'Ranking',
+            tab: 'ranking',
             desc: 'Acompanhe o desempenho de cada barbeiro.<br><br>' +
               '<b>Período</b> — Diário, semanal ou mensal<br>' +
               '<b>Atendimentos</b> — Quantos clientes cada barbeiro atendeu<br>' +
@@ -4353,6 +4358,7 @@
           {
             icon: '💰',
             title: 'Vendas (PDV)',
+            tab: 'pdv',
             desc: 'Registre vendas de produtos da barbearia.<br><br>' +
               '<b>Produto</b> — Nome do produto (pomada, shampoo, etc.)<br>' +
               '<b>Valor</b> — Preço do produto<br>' +
@@ -4363,6 +4369,7 @@
           {
             icon: '👥',
             title: 'Clientes (CRM)',
+            tab: 'crm',
             desc: 'Todos os clientes que já vieram na barbearia.<br><br>' +
               '<b>Busca</b> — Pesquise por nome ou telefone<br>' +
               '<b>Visitas</b> — Quantas vezes o cliente já veio<br>' +
@@ -4373,6 +4380,7 @@
           {
             icon: '🎖️',
             title: 'Fidelidade',
+            tab: 'loyalty',
             desc: 'Programa de fidelidade da barbearia.<br><br>' +
               '<b>Como funciona:</b> A cada X cortes, o cliente ganha 1 grátis<br>' +
               '<b>Progresso</b> — Mostra quantos cortes cada cliente já fez<br>' +
@@ -4388,6 +4396,11 @@
           if (existing) existing.remove();
 
           var s = steps[currentStep];
+
+          // Navega pra aba correspondente
+          if (s.tab) adminSwitchTab(s.tab);
+          window.scrollTo({ top: 0 });
+
           var dots = '';
           for (var i = 0; i < steps.length; i++) {
             dots += '<div class="tour-dot' + (i === currentStep ? ' active' : '') + '"></div>';
@@ -4410,12 +4423,13 @@
           var overlay = document.createElement('div');
           overlay.id = 'tourOverlay';
           overlay.className = 'tour-overlay';
+          overlay.style.cssText = 'align-items:flex-end;padding-bottom:24px;';
           overlay.innerHTML =
-            '<div class="tour-card">' +
+            '<div class="tour-card" style="max-width:440px;width:92%;margin:0 auto;">' +
               '<div class="tour-icon">' + s.icon + '</div>' +
               '<div class="tour-step-label">Passo ' + (currentStep + 1) + ' de ' + steps.length + '</div>' +
               '<div class="tour-title">' + s.title + '</div>' +
-              '<div class="tour-desc">' + s.desc + '</div>' +
+              '<div class="tour-desc" style="text-align:left;font-size:0.82rem;line-height:1.6;">' + s.desc + '</div>' +
               '<div class="tour-dots">' + dots + '</div>' +
               '<div class="tour-btns">' + btns + '</div>' +
             '</div>';
