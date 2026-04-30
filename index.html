@@ -7029,11 +7029,25 @@
       var simplesPctUsed = Math.round((recAnual / simplesLimit) * 100);
       var simplesOk = recAnual <= simplesLimit;
 
-      // Taxa editavel - default 7% Simples Nacional
-      var savedAliquota = localStorage.getItem('ns_aliquota_simples');
-      var aliquotaEfetiva = savedAliquota ? parseFloat(savedAliquota) : 7.0;
+      // Simples Nacional Anexo III - aliquota progressiva por faixa de faturamento anual
+      var faixasSimples = [
+        { limite: 180000, aliquota: 6.0, deducao: 0 },
+        { limite: 360000, aliquota: 11.2, deducao: 9360 },
+        { limite: 720000, aliquota: 13.5, deducao: 17640 },
+        { limite: 1800000, aliquota: 16.0, deducao: 35640 },
+        { limite: 3600000, aliquota: 21.0, deducao: 125640 },
+        { limite: 4800000, aliquota: 33.0, deducao: 648000 }
+      ];
+      var faixaAtual = faixasSimples[0];
+      for (var fi = 0; fi < faixasSimples.length; fi++) {
+        if (recAnual <= faixasSimples[fi].limite) { faixaAtual = faixasSimples[fi]; break; }
+        faixaAtual = faixasSimples[fi];
+      }
+      var aliquotaEfetiva = recAnual > 0 ? ((recAnual * faixaAtual.aliquota / 100 - faixaAtual.deducao) / recAnual * 100) : 6.0;
+      aliquotaEfetiva = Math.max(0, aliquotaEfetiva);
       var impostoMensal = Math.round(recTotal * aliquotaEfetiva / 100);
       var impostoAnual = Math.round(recAnual * aliquotaEfetiva / 100);
+      var faixaLabel = 'Faixa ' + (faixasSimples.indexOf(faixaAtual) + 1) + ' (até R$ ' + (faixaAtual.limite/1000) + 'k)';
 
       var simplesHtml = '';
       simplesHtml += '<div style="margin-bottom:16px;"><div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:6px;"><span>Faturamento Periodo</span><span style="font-weight:600;">R$ ' + recTotal.toLocaleString('pt-BR') + '</span></div>';
@@ -7046,7 +7060,8 @@
 
       simplesHtml += '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:16px;">';
       simplesHtml += '<div style="font-size:0.82rem;font-weight:600;margin-bottom:8px;">Calculo</div>';
-      simplesHtml += '<div style="display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;margin-bottom:4px;border-bottom:1px solid var(--border);padding-bottom:8px;"><span style="font-weight:600;">Aliquota</span><div style="display:flex;align-items:center;gap:6px;"><input id="contabAliquotaInput" type="number" step="0.1" min="0" max="100" value="' + aliquotaEfetiva.toFixed(1) + '" style="width:60px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text);font-size:0.85rem;font-weight:600;text-align:center;" onchange="contabSaveAliquota(this.value)"><span style="font-weight:600;color:#2196f3;">%</span></div></div>';
+      simplesHtml += '<div style="display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;margin-bottom:4px;border-bottom:1px solid var(--border);padding-bottom:8px;"><span style="font-weight:600;">Aliquota Efetiva</span><span style="font-weight:700;color:#2196f3;font-size:1rem;">' + aliquotaEfetiva.toFixed(2) + '%</span></div>';
+      simplesHtml += '<div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:8px;color:var(--text-muted);"><span>' + faixaLabel + '</span><span>Nominal: ' + faixaAtual.aliquota + '% - Dedução R$ ' + faixaAtual.deducao.toLocaleString('pt-BR') + '</span></div>';
       simplesHtml += '<div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px;margin-top:8px;"><span>Imposto Periodo</span><span style="font-weight:600;color:#f44336;">R$ ' + impostoMensal.toLocaleString('pt-BR') + '</span></div>';
       simplesHtml += '<div style="display:flex;justify-content:space-between;font-size:0.85rem;"><span>Projecao Anual</span><span style="font-weight:600;color:#f44336;">R$ ' + impostoAnual.toLocaleString('pt-BR') + '</span></div>';
       simplesHtml += '</div>';
