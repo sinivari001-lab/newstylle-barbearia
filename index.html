@@ -6773,9 +6773,15 @@
       var barbers = {};
       finBookings.forEach(function(b) {
         var name = b.barber || '?';
-        if (!barbers[name]) barbers[name] = { revenue: 0, count: 0 };
+        if (!barbers[name]) barbers[name] = { revenue: 0, count: 0, salesRev: 0, salesCount: 0 };
         barbers[name].revenue += finBookingTotal(b);
         barbers[name].count++;
+      });
+      finSales.forEach(function(s) {
+        var name = s.barber || '?';
+        if (!barbers[name]) barbers[name] = { revenue: 0, count: 0, salesRev: 0, salesCount: 0 };
+        barbers[name].salesRev = (barbers[name].salesRev || 0) + (s.total || 0);
+        barbers[name].salesCount = (barbers[name].salesCount || 0) + 1;
       });
       var allBarbers = Object.keys(barbers);
       allBarbers.sort();
@@ -6787,12 +6793,13 @@
 
       allBarbers.forEach(function(name, i) {
         var pct = commMap[name] !== undefined ? commMap[name] : 40;
-        var data = barbers[name] || { revenue: 0, count: 0 };
-        var comm = Math.round(data.revenue * pct / 100);
-        var loja = data.revenue - comm;
-        gRev += data.revenue; gComm += comm; gLoja += loja; gCount += data.count;
-        tbl += '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:10px 12px;font-weight:600;">' + adminEsc(name) + '</td><td style="padding:10px 12px;"><input type="number" min="0" max="100" value="' + pct + '" data-barber="' + name + '" class="fin-comm-pct" style="width:55px;padding:5px 8px;background:var(--dark);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:0.82rem;text-align:center;outline:none;"></td><td style="padding:10px 12px;text-align:center;">' + data.count + '</td><td style="padding:10px 12px;text-align:right;">R$ ' + data.revenue + '</td><td style="padding:10px 12px;text-align:right;color:#ff9800;font-weight:600;">R$ ' + comm + '</td><td style="padding:10px 12px;text-align:right;color:#4caf50;">R$ ' + loja + '</td></tr>';
-        if (data.revenue > 0) barItems.push({ name: name.replace('Barbeiro ', 'B'), comm: comm, color: COLORS[i % 8] });
+        var data = barbers[name] || { revenue: 0, count: 0, salesRev: 0, salesCount: 0 };
+        var totalRev = data.revenue + (data.salesRev || 0);
+        var comm = Math.round(totalRev * pct / 100);
+        var loja = totalRev - comm;
+        gRev += totalRev; gComm += comm; gLoja += loja; gCount += data.count + (data.salesCount || 0);
+        tbl += '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:10px 12px;font-weight:600;">' + adminEsc(name) + '</td><td style="padding:10px 12px;"><input type="number" min="0" max="100" value="' + pct + '" data-barber="' + name + '" class="fin-comm-pct" style="width:55px;padding:5px 8px;background:var(--dark);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:0.82rem;text-align:center;outline:none;"></td><td style="padding:10px 12px;text-align:center;">' + data.count + (data.salesCount ? '+' + data.salesCount : '') + '</td><td style="padding:10px 12px;text-align:right;">R$ ' + totalRev + '</td><td style="padding:10px 12px;text-align:right;color:#ff9800;font-weight:600;">R$ ' + comm + '</td><td style="padding:10px 12px;text-align:right;color:#4caf50;">R$ ' + loja + '</td></tr>';
+        if (totalRev > 0) barItems.push({ name: name.replace('Barbeiro ', 'B'), comm: comm, color: COLORS[i % 8] });
       });
       tbl += '<tr style="background:rgba(230,57,70,0.04);font-weight:700;border-top:2px solid var(--border);"><td style="padding:10px 12px;">TOTAL</td><td></td><td style="padding:10px 12px;text-align:center;">' + gCount + '</td><td style="padding:10px 12px;text-align:right;color:var(--red);">R$ ' + gRev + '</td><td style="padding:10px 12px;text-align:right;color:#ff9800;">R$ ' + gComm + '</td><td style="padding:10px 12px;text-align:right;color:#4caf50;">R$ ' + gLoja + '</td></tr></tbody></table>';
       document.getElementById('finCommTable').innerHTML = tbl;
