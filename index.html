@@ -3167,6 +3167,7 @@
               <div style="display:flex;gap:8px;margin-top:8px;">
                 <button id="crmSaveNotes" style="padding:8px 16px;background:var(--red);color:#fff;border:none;border-radius:6px;font-size:0.82rem;font-weight:600;cursor:pointer;">Salvar</button>
                 <a id="crmDetailWpp" href="#" target="_blank" style="padding:8px 16px;background:rgba(37,211,102,0.15);color:#25d366;border:none;border-radius:6px;font-size:0.82rem;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:4px;">WhatsApp</a>
+                <button id="crmDeleteClient" style="padding:8px 16px;background:rgba(244,67,54,0.12);color:#f44336;border:1px solid rgba(244,67,54,0.3);border-radius:6px;font-size:0.82rem;font-weight:600;cursor:pointer;margin-left:auto;">Excluir Cliente</button>
               </div>
             </div>
           </div>
@@ -7275,6 +7276,19 @@
         await supabaseClient.from('customer_notes').upsert({ customer_phone: phone, customer_name: client ? client.name : '', notes: notes, birthday: '' }, { onConflict: 'customer_phone' });
         window._crmNotesMap[phone] = { customer_phone: phone, notes: notes };
         alert('Observacoes salvas!');
+      });
+      document.getElementById('crmDeleteClient').addEventListener('click', async function() {
+        var phone = document.getElementById('crmDetailOverlay').dataset.phone;
+        var client = window._crmClients.find(function(c) { return c.phone === phone; });
+        var nome = client ? client.name : phone;
+        if (!confirm('Tem certeza que deseja excluir o cliente "' + nome + '"?\n\nIsso vai remover a ficha do cliente e todas as observacoes. Os agendamentos serao mantidos.')) return;
+        if (supabaseClient) {
+          await supabaseClient.from('customer_notes').delete().eq('customer_phone', phone);
+          delete window._crmNotesMap[phone];
+        }
+        document.getElementById('crmDetailOverlay').style.display = 'none';
+        crmRender(window._crmClients || []);
+        alert('Cliente excluido!');
       });
       document.getElementById('crmExportBtn').addEventListener('click', function() {
         var clients = window._crmClients || [];
