@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NewStylee | Painel Financeiro</title>
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { font-size:16px; }
+    body { font-family:'Inter',system-ui,sans-serif; background:#080808; color:#f0f0f0; min-height:100vh; display:flex; -webkit-font-smoothing:antialiased; }
+
+    :root {
+      --red:#e63946; --red-dark:#c62828; --red-light:#ff6b7a; --red-glow:rgba(230,57,70,0.3);
+      --green:#4caf50; --green-bg:rgba(76,175,80,0.1);
+      --blue:#2196f3; --blue-bg:rgba(33,150,243,0.1);
+      --orange:#ff9800; --orange-bg:rgba(255,152,0,0.1);
+      --purple:#9c27b0; --purple-bg:rgba(156,39,176,0.1);
+      --teal:#00bcd4; --yellow:#ffc107; --pink:#e91e63;
+      --dark:#0a0a0a; --dark-2:#0e0e0e; --dark-card:#111; --dark-card-2:#161616;
+      --border:#1a1a1a; --border-light:#252525;
+      --text:#f0f0f0; --text-muted:#888; --text-light:#bbb;
+      --font-display:'Playfair Display',Georgia,serif;
+      --sidebar-w:240px; --header-h:60px; --radius:12px; --radius-sm:8px;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar { width:var(--sidebar-w); background:var(--dark-card); border-right:1px solid var(--border); display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:100; transition:transform 0.3s; }
+    .sidebar-logo { padding:20px 24px; border-bottom:1px solid var(--border); }
+    .sidebar-logo h1 { font-family:var(--font-display); font-size:1.4rem; font-weight:700; }
+    .sidebar-logo h1 em { font-style:italic; color:var(--red); }
+    .sidebar-logo p { font-size:0.68rem; color:var(--text-muted); margin-top:4px; text-transform:uppercase; letter-spacing:1px; }
+    .sidebar-nav { flex:1; padding:16px 0; overflow-y:auto; }
+    .sidebar-nav a { display:flex; align-items:center; gap:12px; padding:11px 24px; font-size:0.82rem; font-weight:500; color:var(--text-muted); text-decoration:none; transition:all 0.2s; border-left:3px solid transparent; }
+    .sidebar-nav a:hover { color:var(--text); background:rgba(255,255,255,0.03); }
+    .sidebar-nav a.active { color:var(--red); background:rgba(230,57,70,0.06); border-left-color:var(--red); font-weight:600; }
+    .sidebar-nav a span.nav-icon { font-size:1.1rem; width:24px; text-align:center; }
+    .sidebar-footer { padding:16px 24px; border-top:1px solid var(--border); }
+    .sidebar-footer a { display:block; font-size:0.78rem; color:var(--text-muted); text-decoration:none; padding:6px 0; }
+    .sidebar-footer a:hover { color:var(--red); }
+
+    /* ===== MAIN ===== */
+    .main { flex:1; margin-left:var(--sidebar-w); min-height:100vh; }
+    .topbar { height:var(--header-h); background:var(--dark-card); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 28px; position:sticky; top:0; z-index:50; }
+    .topbar-title { font-family:var(--font-display); font-size:1.1rem; }
+    .topbar-controls { display:flex; gap:10px; align-items:center; }
+    .topbar-controls label { font-size:0.72rem; color:var(--text-muted); }
+    .topbar-controls input, .topbar-controls select { padding:7px 12px; background:var(--dark); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:0.82rem; outline:none; }
+    .topbar-controls input:focus, .topbar-controls select:focus { border-color:var(--red); }
+    .btn-refresh { padding:7px 16px; background:var(--red); color:#fff; border:none; border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer; }
+    .btn-refresh:hover { background:var(--red-dark); }
+    .content { padding:24px 28px; }
+
+    /* ===== KPI CARDS ===== */
+    .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-bottom:24px; }
+    .kpi-card { background:var(--dark-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; position:relative; overflow:hidden; }
+    .kpi-card::after { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+    .kpi-card.kc-green::after { background:var(--green); }
+    .kpi-card.kc-red::after { background:#f44336; }
+    .kpi-card.kc-blue::after { background:var(--blue); }
+    .kpi-card.kc-gold::after { background:var(--yellow); }
+    .kpi-card.kc-purple::after { background:var(--purple); }
+    .kpi-card.kc-orange::after { background:var(--orange); }
+    .kpi-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+    .kpi-icon { font-size:1.5rem; opacity:0.9; }
+    .kpi-trend { font-size:0.7rem; font-weight:600; padding:3px 8px; border-radius:10px; }
+    .kpi-trend.up { background:var(--green-bg); color:var(--green); }
+    .kpi-trend.down { background:rgba(244,67,54,0.1); color:#f44336; }
+    .kpi-trend.neutral { background:rgba(255,255,255,0.05); color:var(--text-muted); }
+    .kpi-value { font-family:var(--font-display); font-size:2rem; font-weight:700; line-height:1.1; margin-bottom:4px; }
+    .kpi-label { font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; }
+    .kpi-sub { font-size:0.7rem; color:var(--text-muted); margin-top:6px; }
+    .kpi-sparkline { margin-top:10px; height:32px; display:flex; align-items:flex-end; gap:2px; }
+    .kpi-spark-bar { flex:1; border-radius:2px 2px 0 0; min-height:2px; transition:height 0.4s; }
+
+    /* ===== CHART CONTAINERS ===== */
+    .chart-row { display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-bottom:24px; }
+    .chart-box { background:var(--dark-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; }
+    .chart-title { font-family:var(--font-display); font-size:0.95rem; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; }
+    .chart-title span { color:var(--red); }
+    .chart-subtitle { font-size:0.7rem; color:var(--text-muted); }
+
+    /* Bar Chart */
+    .bar-chart { display:flex; align-items:flex-end; gap:8px; height:180px; padding:8px 0; }
+    .bar-group { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; min-width:0; }
+    .bar-val { font-size:0.65rem; color:var(--text-muted); white-space:nowrap; }
+    .bar-fill { width:100%; max-width:40px; border-radius:4px 4px 0 0; transition:height 0.6s ease; cursor:pointer; position:relative; }
+    .bar-fill:hover { filter:brightness(1.3); }
+    .bar-label { font-size:0.62rem; color:var(--text-muted); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+
+    /* Line Chart */
+    .line-chart-wrap { position:relative; height:180px; }
+    .line-chart-svg { width:100%; height:100%; }
+    .line-chart-grid line { stroke:var(--border); stroke-width:0.5; }
+    .line-chart-labels { display:flex; justify-content:space-between; margin-top:6px; }
+    .line-chart-labels span { font-size:0.6rem; color:var(--text-muted); }
+    .line-chart-y { position:absolute; left:-4px; top:0; bottom:20px; display:flex; flex-direction:column; justify-content:space-between; }
+    .line-chart-y span { font-size:0.58rem; color:var(--text-muted); text-align:right; width:50px; }
+
+    /* Donut Chart */
+    .donut-wrap { display:flex; align-items:center; gap:20px; justify-content:center; }
+    .donut-svg { width:150px; height:150px; }
+    .donut-svg circle { transition:stroke-dasharray 0.6s, stroke-dashoffset 0.6s; }
+    .donut-center { text-align:center; }
+    .donut-center-val { font-family:var(--font-display); font-size:1.5rem; font-weight:700; }
+    .donut-center-label { font-size:0.68rem; color:var(--text-muted); }
+    .donut-legend { display:flex; flex-direction:column; gap:8px; }
+    .donut-legend-item { display:flex; align-items:center; gap:8px; font-size:0.78rem; }
+    .donut-legend-dot { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+    .donut-legend-val { margin-left:auto; font-weight:600; font-size:0.75rem; }
+    .donut-legend-pct { color:var(--text-muted); font-size:0.68rem; width:35px; text-align:right; }
+
+    /* ===== TABLE ===== */
+    .fin-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+    .fin-table th { text-align:left; padding:10px 12px; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); border-bottom:2px solid var(--border); font-weight:600; }
+    .fin-table td { padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:middle; }
+    .fin-table tbody tr:hover { background:rgba(255,255,255,0.02); }
+    .fin-table .row-total { background:rgba(230,57,70,0.04); font-weight:700; }
+    .fin-table .row-total td { border-bottom:2px solid var(--border); }
+    .fin-table .val-pos { color:var(--green); }
+    .fin-table .val-neg { color:#f44336; }
+    .fin-table .val-accent { color:var(--red); font-weight:700; }
+
+    /* ===== DRE ===== */
+    .dre-section { margin-bottom:8px; }
+    .dre-header { display:flex; justify-content:space-between; padding:12px 16px; background:rgba(255,255,255,0.03); border-radius:var(--radius-sm); font-weight:600; font-size:0.88rem; cursor:pointer; }
+    .dre-header:hover { background:rgba(255,255,255,0.05); }
+    .dre-row { display:flex; justify-content:space-between; padding:8px 16px 8px 32px; font-size:0.82rem; border-bottom:1px solid rgba(255,255,255,0.03); }
+    .dre-row:last-child { border-bottom:none; }
+    .dre-total { display:flex; justify-content:space-between; padding:14px 16px; font-weight:700; font-size:1rem; border-top:2px solid var(--red); border-bottom:2px solid var(--red); margin-top:8px; }
+
+    /* ===== EXPENSE FORM ===== */
+    .expense-form { background:var(--dark-card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin-bottom:20px; }
+    .expense-form h3 { font-family:var(--font-display); font-size:0.95rem; color:var(--red); margin-bottom:16px; }
+    .form-grid { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:12px; align-items:end; }
+    .form-grid-2 { display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:12px; align-items:end; margin-top:12px; }
+    .form-group label { display:block; font-size:0.72rem; color:var(--text-muted); margin-bottom:4px; font-weight:500; }
+    .form-group input, .form-group select { width:100%; padding:9px 12px; background:var(--dark); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:0.82rem; outline:none; }
+    .form-group input:focus, .form-group select:focus { border-color:var(--red); }
+    .btn-save { padding:9px 20px; background:var(--red); color:#fff; border:none; border-radius:6px; font-weight:600; cursor:pointer; font-size:0.82rem; white-space:nowrap; }
+    .btn-save:hover { background:var(--red-dark); }
+    .btn-del { background:rgba(244,67,54,0.1); color:#f44336; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:0.72rem; }
+    .btn-del:hover { background:rgba(244,67,54,0.2); }
+
+    /* ===== GOALS ===== */
+    .goal-card { background:var(--dark-card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin-bottom:16px; }
+    .goal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .goal-title { font-family:var(--font-display); font-size:1rem; }
+    .goal-pct { font-family:var(--font-display); font-size:1.8rem; font-weight:700; }
+    .goal-bar { height:12px; background:var(--border); border-radius:6px; overflow:hidden; margin-bottom:10px; }
+    .goal-bar-fill { height:100%; border-radius:6px; transition:width 0.8s ease; background:linear-gradient(90deg,var(--red),var(--red-light)); }
+    .goal-bar-fill.hit { background:linear-gradient(90deg,var(--green),#81c784); }
+    .goal-detail { display:flex; justify-content:space-between; font-size:0.78rem; color:var(--text-muted); }
+
+    /* ===== SECTIONS ===== */
+    .section { display:none; }
+    .section.active { display:block; }
+    .section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+    .section-title { font-family:var(--font-display); font-size:1.3rem; }
+    .section-title span { color:var(--red); }
+
+    /* ===== MOBILE ===== */
+    .sidebar-toggle { display:none; background:none; border:none; color:var(--text); font-size:1.3rem; cursor:pointer; padding:8px; }
+    @media (max-width:768px) {
+      .sidebar { transform:translateX(-100%); }
+      .sidebar.open { transform:translateX(0); }
+      .main { margin-left:0; }
+      .sidebar-toggle { display:block; }
+      .chart-row { grid-template-columns:1fr; }
+      .kpi-grid { grid-template-columns:repeat(2,1fr); }
+      .form-grid, .form-grid-2 { grid-template-columns:1fr; }
+      .content { padding:16px; }
+      .topbar { padding:0 16px; }
+      .donut-wrap { flex-direction:column; }
+      .bar-chart { height:140px; }
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+    .animate-in { animation:fadeUp 0.4s ease forwards; }
+    .msg { font-size:0.82rem; padding:8px 0; display:none; }
+    .msg.ok { color:var(--green); }
+    .msg.err { color:#f44336; }
+
+    /* Login overlay */
+    .login-overlay { position:fixed; inset:0; background:var(--dark); z-index:9999; display:flex; align-items:center; justify-content:center; }
+    .login-box { background:var(--dark-card); border:1px solid var(--border); border-radius:16px; padding:40px 32px; max-width:380px; width:100%; text-align:center; }
+    .login-box h1 { font-family:var(--font-display); font-size:1.8rem; margin-bottom:4px; }
+    .login-box h1 em { font-style:italic; color:var(--red); }
+    .login-box p { color:var(--text-muted); font-size:0.82rem; margin-bottom:20px; }
+    .login-box input { width:100%; padding:12px 16px; background:var(--dark); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:1rem; outline:none; margin-bottom:12px; }
+    .login-box input:focus { border-color:var(--red); }
+    .login-box button { width:100%; padding:12px; background:var(--red); color:#fff; border:none; border-radius:8px; font-size:1rem; font-weight:600; cursor:pointer; }
+    .login-box .login-err { color:var(--red); font-size:0.82rem; margin-top:8px; display:none; }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <h1>New<em>Stylle</em></h1>
+    <p>Painel Financeiro</p>
+    <input type="password" id="loginPass" placeholder="Senha" autofocus>
+    <button id="loginBtn">Entrar</button>
+    <div class="login-err" id="loginErr">Senha incorreta.</div>
+    <a href="index.html" style="display:inline-block;margin-top:16px;color:var(--text-muted);font-size:0.82rem;text-decoration:none;">Voltar ao site</a>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <h1>New<em>Stylle</em></h1>
+    <p>Financeiro</p>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="#" class="active" data-section="dashboard"><span class="nav-icon">&#128202;</span> Dashboard</a>
+    <a href="#" data-section="receitas"><span class="nav-icon">&#128176;</span> Receitas</a>
+    <a href="#" data-section="despesas"><span class="nav-icon">&#128200;</span> Despesas</a>
+    <a href="#" data-section="dre"><span class="nav-icon">&#128203;</span> DRE</a>
+    <a href="#" data-section="fluxo"><span class="nav-icon">&#128201;</span> Fluxo de Caixa</a>
+    <a href="#" data-section="comissoes"><span class="nav-icon">&#128101;</span> Comissoes</a>
+    <a href="#" data-section="metas"><span class="nav-icon">&#127919;</span> Metas</a>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="index.html?admin">Voltar ao Admin</a>
+    <a href="#" onclick="sessionStorage.removeItem('ns_admin');sessionStorage.removeItem('ns_role');sessionStorage.removeItem('ns_barber');window.location.href='index.html';return false;">Sair</a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main" id="mainArea" style="display:none;">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
+      <span class="topbar-title" id="topbarTitle">Dashboard</span>
+    </div>
+    <div class="topbar-controls">
+      <div><label>De</label> <input type="date" id="gDateStart"></div>
+      <div><label>Ate</label> <input type="date" id="gDateEnd"></div>
+      <button class="btn-refresh" id="gRefresh">Atualizar</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="section active" id="secDashboard">
+      <div class="kpi-grid" id="kpiGrid"></div>
+      <div class="chart-row">
+        <div class="chart-box">
+          <div class="chart-title">Receita Diaria <span class="chart-subtitle" id="chartLinePeriod"></span></div>
+          <div class="line-chart-wrap" id="lineChartWrap"></div>
+          <div class="line-chart-labels" id="lineChartLabels"></div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">Servicos</div>
+          <div class="donut-wrap" id="donutServices"></div>
+        </div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-box">
+          <div class="chart-title">Faturamento por <span>Barbeiro</span></div>
+          <div class="bar-chart" id="barChartBarbers"></div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">Pagamentos</div>
+          <div class="donut-wrap" id="donutPayments"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== RECEITAS ===== -->
+    <div class="section" id="secReceitas">
+      <div class="section-header">
+        <div class="section-title">Receitas <span>Detalhadas</span></div>
+      </div>
+      <div class="kpi-grid" id="receitaCards" style="margin-bottom:20px;"></div>
+      <div class="chart-box" style="margin-bottom:20px;">
+        <div class="chart-title">Receita por <span>Servico</span></div>
+        <div class="bar-chart" id="barReceitaServicos" style="height:160px;"></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">Historico de Atendimentos</div>
+        <div style="overflow-x:auto;"><table class="fin-table" id="receitaTable"></table></div>
+      </div>
+    </div>
+
+    <!-- ===== DESPESAS ===== -->
+    <div class="section" id="secDespesas">
+      <div class="section-header">
+        <div class="section-title">Controle de <span>Despesas</span></div>
+      </div>
+      <div class="expense-form">
+        <h3>Nova Despesa</h3>
+        <div class="form-grid">
+          <div class="form-group"><label>Descricao *</label><input type="text" id="expDesc" placeholder="Ex: Aluguel abril"></div>
+          <div class="form-group"><label>Valor (R$) *</label><input type="number" id="expAmount" placeholder="1500"></div>
+          <div class="form-group"><label>Categoria *</label><select id="expCat"><option value="aluguel">Aluguel</option><option value="produtos">Produtos</option><option value="equipamentos">Equipamentos</option><option value="agua">Agua</option><option value="luz">Luz</option><option value="internet">Internet</option><option value="manutencao">Manutencao</option><option value="marketing">Marketing</option><option value="impostos">Impostos</option><option value="salarios">Salarios</option><option value="outros">Outros</option></select></div>
+          <div class="form-group"><label>Pagamento</label><select id="expPay"><option value="pix">PIX</option><option value="dinheiro">Dinheiro</option><option value="boleto">Boleto</option><option value="debito">Debito</option><option value="credito">Credito</option><option value="transferencia">Transferencia</option></select></div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group"><label>Data</label><input type="date" id="expDate"></div>
+          <div class="form-group"><label>Recorrente?</label><select id="expRecur"><option value="0">Nao</option><option value="1">Sim (mensal)</option></select></div>
+          <div class="form-group"><label>Obs</label><input type="text" id="expNotes" placeholder="Opcional"></div>
+          <div class="form-group"><label>&nbsp;</label><button class="btn-save" id="expSave">Salvar</button></div>
+        </div>
+        <div class="msg" id="expMsg"></div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-box">
+          <div class="chart-title">Despesas por <span>Categoria</span></div>
+          <div class="bar-chart" id="barExpCat" style="height:160px;"></div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">Categorias</div>
+          <div class="donut-wrap" id="donutExpCat"></div>
+        </div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">Lancamentos <span id="expTotalLabel"></span></div>
+        <div style="overflow-x:auto;"><table class="fin-table" id="expTable"></table></div>
+      </div>
+    </div>
+
+    <!-- ===== DRE ===== -->
+    <div class="section" id="secDre">
+      <div class="section-header">
+        <div class="section-title">DRE — Demonstrativo de <span>Resultado</span></div>
+      </div>
+      <div class="chart-box" id="dreContent"></div>
+    </div>
+
+    <!-- ===== FLUXO DE CAIXA ===== -->
+    <div class="section" id="secFluxo">
+      <div class="section-header">
+        <div class="section-title">Fluxo de <span>Caixa</span></div>
+      </div>
+      <div class="kpi-grid" id="fluxoCards" style="margin-bottom:20px;"></div>
+      <div class="chart-box" style="margin-bottom:20px;">
+        <div class="chart-title">Entradas vs Saidas</div>
+        <div class="bar-chart" id="barFluxo" style="height:200px;"></div>
+        <div style="display:flex;gap:20px;justify-content:center;margin-top:12px;">
+          <span style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:var(--text-muted);"><span style="width:10px;height:10px;border-radius:2px;background:var(--green);"></span> Entradas</span>
+          <span style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:var(--text-muted);"><span style="width:10px;height:10px;border-radius:2px;background:#f44336;"></span> Saidas</span>
+        </div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">Saldo <span>Acumulado</span></div>
+        <div style="overflow-x:auto;"><table class="fin-table" id="fluxoTable"></table></div>
+      </div>
+    </div>
+
+    <!-- ===== COMISSOES ===== -->
+    <div class="section" id="secComissoes">
+      <div class="section-header">
+        <div class="section-title">Comissoes por <span>Barbeiro</span></div>
+        <button class="btn-save" id="commSaveBtn">Salvar Porcentagens</button>
+      </div>
+      <div class="msg" id="commMsg"></div>
+      <div class="chart-box" style="margin-bottom:20px;">
+        <div style="overflow-x:auto;"><table class="fin-table" id="commTable"></table></div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-box">
+          <div class="chart-title">Comissao vs Receita <span>Loja</span></div>
+          <div class="bar-chart" id="barComm" style="height:160px;"></div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">Distribuicao</div>
+          <div class="donut-wrap" id="donutComm"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== METAS ===== -->
+    <div class="section" id="secMetas">
+      <div class="section-header">
+        <div class="section-title">Metas <span>Mensais</span></div>
+      </div>
+      <div class="expense-form" style="margin-bottom:20px;">
+        <h3>Definir Meta do Mes</h3>
+        <div style="display:flex;gap:12px;align-items:end;">
+          <div class="form-group" style="flex:1;"><label>Meta de Receita (R$)</label><input type="number" id="metaReceita" placeholder="15000"></div>
+          <div class="form-group" style="flex:1;"><label>Meta de Atendimentos</label><input type="number" id="metaAtend" placeholder="300"></div>
+          <div class="form-group"><label>&nbsp;</label><button class="btn-save" id="metaSave">Salvar</button></div>
+        </div>
+        <div class="msg" id="metaMsg"></div>
+      </div>
+      <div id="metaCards"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ===== CONFIG =====
+  const SUPABASE_URL = 'https://adfylhgfpveeakegqqtu.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_iJq7jydUq9Pf3kzLeOqZsQ_fuT5XvU1';
+  const OWNER_PASS = 'new0000';
+  const COLORS = ['#e63946','#4caf50','#2196f3','#ff9800','#9c27b0','#00bcd4','#ffc107','#e91e63','#8bc34a','#3f51b5','#795548','#607d8b'];
+  const CAT_ICONS = { aluguel:'&#127968;', produtos:'&#128230;', equipamentos:'&#128295;', agua:'&#128167;', luz:'&#9889;', internet:'&#127760;', manutencao:'&#128736;', marketing:'&#128226;', impostos:'&#128196;', salarios:'&#128181;', outros:'&#128221;' };
+  const PAY_LABELS = { dinheiro:'Dinheiro', pix:'PIX', debito:'Debito', credito:'Credito', boleto:'Boleto', transferencia:'Transf.' };
+  const PAY_ICONS = { dinheiro:'&#128181;', pix:'&#128241;', debito:'&#128179;', credito:'&#128179;', boleto:'&#128196;', transferencia:'&#127974;' };
+
+  let sb = null;
+  try { sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e) { console.error(e); }
+
+  // ===== AUTH (unified with index.html) =====
+  var loginOverlay = document.getElementById('loginOverlay');
+  var mainArea = document.getElementById('mainArea');
+  var currentRole = sessionStorage.getItem('ns_role'); // 'owner' or 'barber'
+  var currentBarber = sessionStorage.getItem('ns_barber') || '';
+
+  // If already logged in from index.html admin panel, skip login
+  if (currentRole === 'owner' || currentRole === 'barber') {
+    loginOverlay.style.display = 'none';
+    mainArea.style.display = 'block';
+    applyRole();
+    initApp();
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', doLogin);
+  document.getElementById('loginPass').addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
+
+  async function doLogin() {
+    var pass = document.getElementById('loginPass').value;
+    // 1. Check owner password
+    if (pass === OWNER_PASS) {
+      sessionStorage.setItem('ns_admin', 'true');
+      sessionStorage.setItem('ns_role', 'owner');
+      sessionStorage.setItem('ns_barber', '');
+      currentRole = 'owner'; currentBarber = '';
+      loginOverlay.style.display = 'none'; mainArea.style.display = 'block';
+      applyRole(); initApp(); return;
+    }
+    // 2. Check barber password via Supabase
+    if (sb) {
+      var { data } = await sb.from('barber_accounts').select('name').eq('password', pass).eq('active', true).limit(1);
+      if (data && data.length) {
+        sessionStorage.setItem('ns_admin', 'true');
+        sessionStorage.setItem('ns_role', 'barber');
+        sessionStorage.setItem('ns_barber', data[0].name);
+        currentRole = 'barber'; currentBarber = data[0].name;
+        loginOverlay.style.display = 'none'; mainArea.style.display = 'block';
+        applyRole(); initApp(); return;
+      }
+    }
+    // 3. Invalid
+    document.getElementById('loginErr').style.display = 'block';
+    setTimeout(function() { document.getElementById('loginErr').style.display = 'none'; }, 3000);
+  }
+
+  function applyRole() {
+    if (currentRole === 'barber') {
+      // Hide owner-only sections in sidebar
+      document.querySelectorAll('.sidebar-nav a').forEach(function(a) {
+        var sec = a.getAttribute('data-section');
+        if (['despesas','dre','fluxo','metas'].indexOf(sec) >= 0) a.style.display = 'none';
+      });
+      // Update topbar with barber name
+      document.getElementById('topbarTitle').textContent = 'Meu Financeiro — ' + currentBarber;
+    }
+  }
+
+  // ===== SIDEBAR NAV =====
+  document.querySelectorAll('.sidebar-nav a').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      var sec = this.getAttribute('data-section');
+      document.querySelectorAll('.sidebar-nav a').forEach(function(x) { x.classList.remove('active'); });
+      this.classList.add('active');
+      document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+      document.getElementById('sec' + sec.charAt(0).toUpperCase() + sec.slice(1)).classList.add('active');
+      document.getElementById('topbarTitle').textContent = this.textContent.trim();
+      // Close sidebar on mobile
+      document.getElementById('sidebar').classList.remove('open');
+      loadSection(sec);
+    });
+  });
+
+  document.getElementById('sidebarToggle').addEventListener('click', function() {
+    document.getElementById('sidebar').classList.toggle('open');
+  });
+
+  // ===== GLOBAL STATE =====
+  var gBookings = [], gSales = [], gExpenses = [], gComms = [];
+
+  function getDateRange() {
+    return { start: document.getElementById('gDateStart').value, end: document.getElementById('gDateEnd').value };
+  }
+
+  function fmtDate(d) { var p = d.split('-'); return p[2] + '/' + p[1]; }
+  function fmtDateFull(d) { var p = d.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+  function bookingTotal(b) {
+    var t = b.service_price || 0;
+    if (b.extras && Array.isArray(b.extras)) b.extras.forEach(function(e) { t += (e.price || 0); });
+    return t;
+  }
+
+  // ===== INIT =====
+  function initApp() {
+    var now = new Date();
+    var start = new Date(now.getFullYear(), now.getMonth(), 1);
+    document.getElementById('gDateStart').value = start.toISOString().split('T')[0];
+    document.getElementById('gDateEnd').value = now.toISOString().split('T')[0];
+    document.getElementById('expDate').value = now.toISOString().split('T')[0];
+    loadAll();
+  }
+
+  document.getElementById('gRefresh').addEventListener('click', loadAll);
+  document.getElementById('gDateStart').addEventListener('change', loadAll);
+  document.getElementById('gDateEnd').addEventListener('change', loadAll);
+
+  async function loadAll() {
+    if (!sb) return;
+    var r = getDateRange();
+
+    var qBookings = sb.from('bookings').select('*').in('status', ['completed','confirmed']).gte('date', r.start).lte('date', r.end).order('date');
+    var qSales = sb.from('sales').select('*').gte('created_at', r.start + 'T00:00:00').lte('created_at', r.end + 'T23:59:59').order('created_at');
+    var qExpenses = sb.from('expenses').select('*').gte('date', r.start).lte('date', r.end).order('date', { ascending: false });
+    var qComms = sb.from('commissions').select('*');
+
+    // Barber role: filter only their data
+    if (currentRole === 'barber' && currentBarber) {
+      qBookings = qBookings.eq('barber', currentBarber);
+      qSales = qSales.eq('barber', currentBarber);
+      qComms = qComms.eq('barber', currentBarber);
+    }
+
+    var [bk, sl, ex, cm] = await Promise.all([qBookings, qSales, qExpenses, qComms]);
+
+    gBookings = bk.data || [];
+    gSales = sl.data || [];
+    gExpenses = ex.data || [];
+    gComms = cm.data || [];
+
+    renderDashboard();
+  }
+
+  function loadSection(sec) {
+    if (sec === 'dashboard') renderDashboard();
+    else if (sec === 'receitas') renderReceitas();
+    else if (sec === 'despesas') renderDespesas();
+    else if (sec === 'dre') renderDRE();
+    else if (sec === 'fluxo') renderFluxo();
+    else if (sec === 'comissoes') renderComissoes();
+    else if (sec === 'metas') renderMetas();
+  }
+
+  // ===== HELPERS: Charts =====
+  function renderBarChart(el, items, opts) {
+    // items: [{label, value, color}]
+    opts = opts || {};
+    var max = 1;
+    items.forEach(function(i) { if (i.value > max) max = i.value; });
+    var h = '';
+    items.forEach(function(i) {
+      var pct = Math.max(3, Math.round((i.value / max) * 100));
+      h += '<div class="bar-group"><div class="bar-val">R$' + i.value + '</div><div class="bar-fill" style="height:' + pct + '%;background:' + (i.color || 'var(--red)') + ';" title="' + esc(i.label) + ': R$' + i.value + '"></div><div class="bar-label">' + esc(i.label) + '</div></div>';
+    });
+    document.getElementById(el).innerHTML = h || '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:0.85rem;">Sem dados</div>';
+  }
+
+  function renderDonut(el, items, centerVal, centerLabel) {
+    // items: [{label, value, color}]
+    var total = 0;
+    items.forEach(function(i) { total += i.value; });
+    if (!total) { document.getElementById(el).innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:0.85rem;padding:40px 0;">Sem dados</div>'; return; }
+
+    var svg = '<svg class="donut-svg" viewBox="0 0 42 42"><circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--border)" stroke-width="4.5"/>';
+    var offset = 0;
+    items.forEach(function(i) {
+      var pct = (i.value / total) * 100;
+      var dash = pct * 0.999;
+      svg += '<circle cx="21" cy="21" r="15.9" fill="none" stroke="' + i.color + '" stroke-width="4.5" stroke-dasharray="' + dash.toFixed(1) + ' ' + (100-dash).toFixed(1) + '" stroke-dashoffset="' + (-offset).toFixed(1) + '" style="transform:rotate(-90deg);transform-origin:center;"/>';
+      offset += pct;
+    });
+    svg += '</svg>';
+
+    var legend = '<div class="donut-legend">';
+    items.slice(0, 8).forEach(function(i) {
+      var pct = total > 0 ? Math.round((i.value / total) * 100) : 0;
+      legend += '<div class="donut-legend-item"><div class="donut-legend-dot" style="background:' + i.color + ';"></div><span>' + esc(i.label) + '</span><div class="donut-legend-val">R$ ' + i.value + '</div><div class="donut-legend-pct">' + pct + '%</div></div>';
+    });
+    legend += '</div>';
+
+    document.getElementById(el).innerHTML = '<div style="position:relative;display:inline-block;">' + svg + '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div class="donut-center-val">' + centerVal + '</div><div class="donut-center-label">' + centerLabel + '</div></div></div>' + legend;
+  }
+
+  function renderLineChart(el, labelsEl, points) {
+    // points: [{label, value}]
+    if (!points.length) { document.getElementById(el).innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);">Sem dados</div>'; return; }
+    var max = 1;
+    points.forEach(function(p) { if (p.value > max) max = p.value; });
+    var w = 100, h = 100;
+    var stepX = points.length > 1 ? w / (points.length - 1) : w;
+    var pts = points.map(function(p, i) {
+      var x = i * stepX;
+      var y = h - (p.value / max) * (h - 10) - 5;
+      return x.toFixed(1) + ',' + y.toFixed(1);
+    });
+    var polyline = pts.join(' ');
+    var areaPoints = '0,' + h + ' ' + polyline + ' ' + ((points.length-1)*stepX).toFixed(1) + ',' + h;
+
+    var gridLines = '';
+    for (var g = 0; g < 5; g++) {
+      var gy = 5 + g * ((h - 10) / 4);
+      gridLines += '<line x1="0" y1="' + gy + '" x2="' + w + '" y2="' + gy + '" class="line-chart-grid"/>';
+    }
+
+    var svg = '<svg class="line-chart-svg" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none">';
+    svg += '<defs><linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--red)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--red)" stop-opacity="0"/></linearGradient></defs>';
+    svg += gridLines;
+    svg += '<polygon points="' + areaPoints + '" fill="url(#areaGrad)"/>';
+    svg += '<polyline points="' + polyline + '" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linejoin="round"/>';
+    // Dots
+    points.forEach(function(p, i) {
+      var x = i * stepX;
+      var y = h - (p.value / max) * (h - 10) - 5;
+      svg += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="1.8" fill="var(--red)" stroke="var(--dark-card)" stroke-width="0.8"><title>' + p.label + ': R$' + p.value + '</title></circle>';
+    });
+    svg += '</svg>';
+    document.getElementById(el).innerHTML = svg;
+
+    // Labels (show max 10)
+    var step = Math.max(1, Math.floor(points.length / 10));
+    var lblHtml = '';
+    points.forEach(function(p, i) {
+      if (i % step === 0 || i === points.length - 1) lblHtml += '<span>' + p.label + '</span>';
+    });
+    if (labelsEl) document.getElementById(labelsEl).innerHTML = lblHtml;
+  }
+
+  // ===== DASHBOARD =====
+  function renderDashboard() {
+    var recServicos = 0, recProdutos = 0, totalDesp = 0, atend = 0;
+    var barbers = {}, services = {}, dailyRev = {}, payMethods = {};
+
+    gBookings.forEach(function(b) {
+      var t = bookingTotal(b);
+      recServicos += t;
+      atend++;
+      var name = b.barber || '?';
+      barbers[name] = (barbers[name] || 0) + t;
+      var svc = b.service || 'Outro';
+      services[svc] = (services[svc] || 0) + t;
+      dailyRev[b.date] = (dailyRev[b.date] || 0) + t;
+    });
+
+    gSales.forEach(function(s) {
+      recProdutos += s.total || 0;
+      var day = s.created_at.split('T')[0];
+      dailyRev[day] = (dailyRev[day] || 0) + (s.total || 0);
+      var pm = s.payment_method || 'dinheiro';
+      payMethods[pm] = (payMethods[pm] || 0) + (s.total || 0);
+    });
+
+    gExpenses.forEach(function(e) { totalDesp += e.amount || 0; });
+
+    var recTotal = recServicos + recProdutos;
+    var lucro = recTotal - totalDesp;
+    var margem = recTotal > 0 ? Math.round((lucro / recTotal) * 100) : 0;
+    var ticket = atend > 0 ? Math.round(recServicos / atend) : 0;
+
+    // KPI Cards
+    var kpi = '';
+    kpi += kpiCard('kc-green', '&#128176;', 'R$ ' + recTotal.toLocaleString('pt-BR'), 'Receita Total', 'Servicos R$' + recServicos + ' + Produtos R$' + recProdutos);
+    kpi += kpiCard('kc-red', '&#128200;', 'R$ ' + totalDesp.toLocaleString('pt-BR'), 'Despesas', gExpenses.length + ' lancamentos');
+    kpi += kpiCard(lucro >= 0 ? 'kc-blue' : 'kc-red', '&#128178;', 'R$ ' + lucro.toLocaleString('pt-BR'), 'Lucro Liquido', 'Margem: ' + margem + '%');
+    kpi += kpiCard('kc-gold', '&#9989;', atend.toString(), 'Atendimentos', 'Ticket medio: R$ ' + ticket);
+    kpi += kpiCard('kc-purple', '&#128717;', 'R$ ' + recProdutos.toLocaleString('pt-BR'), 'Vendas Produtos', gSales.length + ' vendas');
+    kpi += kpiCard('kc-orange', '&#128197;', 'R$ ' + recServicos.toLocaleString('pt-BR'), 'Receita Servicos', Object.keys(barbers).length + ' barbeiros ativos');
+    document.getElementById('kpiGrid').innerHTML = kpi;
+
+    // Line chart
+    var dayKeys = Object.keys(dailyRev).sort();
+    var linePoints = dayKeys.map(function(d) { return { label: fmtDate(d), value: dailyRev[d] }; });
+    renderLineChart('lineChartWrap', 'lineChartLabels', linePoints);
+
+    // Bar chart barbers
+    var barberItems = Object.entries(barbers).sort(function(a,b) { return b[1]-a[1]; }).map(function(b, i) {
+      return { label: b[0].replace('Barbeiro ', 'B'), value: b[1], color: COLORS[i % COLORS.length] };
+    });
+    renderBarChart('barChartBarbers', barberItems);
+
+    // Donut services
+    var svcItems = Object.entries(services).sort(function(a,b) { return b[1]-a[1]; }).map(function(s, i) {
+      return { label: s[0], value: s[1], color: COLORS[i % COLORS.length] };
+    });
+    renderDonut('donutServices', svcItems, 'R$ ' + recServicos, atend + ' atend.');
+
+    // Donut payments
+    var payItems = Object.entries(payMethods).sort(function(a,b) { return b[1]-a[1]; }).map(function(p, i) {
+      return { label: PAY_LABELS[p[0]] || p[0], value: p[1], color: COLORS[i % COLORS.length] };
+    });
+    renderDonut('donutPayments', payItems, 'R$ ' + recProdutos, gSales.length + ' vendas');
+  }
+
+  function kpiCard(cls, icon, value, label, sub) {
+    return '<div class="kpi-card ' + cls + ' animate-in"><div class="kpi-header"><div class="kpi-icon">' + icon + '</div></div><div class="kpi-value">' + value + '</div><div class="kpi-label">' + label + '</div><div class="kpi-sub">' + sub + '</div></div>';
+  }
+
+  // ===== RECEITAS =====
+  function renderReceitas() {
+    var recServicos = 0, recProdutos = 0, atend = 0, services = {};
+    gBookings.forEach(function(b) {
+      var t = bookingTotal(b); recServicos += t; atend++;
+      var svc = b.service || 'Outro';
+      if (!services[svc]) services[svc] = { count: 0, revenue: 0 };
+      services[svc].count++; services[svc].revenue += t;
+    });
+    gSales.forEach(function(s) { recProdutos += s.total || 0; });
+
+    var cards = '';
+    cards += kpiCard('kc-green', '&#128176;', 'R$ ' + (recServicos + recProdutos), 'Receita Total', '');
+    cards += kpiCard('kc-orange', '&#128197;', 'R$ ' + recServicos, 'Servicos', atend + ' atendimentos');
+    cards += kpiCard('kc-purple', '&#128717;', 'R$ ' + recProdutos, 'Produtos', gSales.length + ' vendas');
+    cards += kpiCard('kc-gold', '&#127919;', 'R$ ' + (atend > 0 ? Math.round(recServicos / atend) : 0), 'Ticket Medio', '');
+    document.getElementById('receitaCards').innerHTML = cards;
+
+    var svcItems = Object.entries(services).sort(function(a,b) { return b[1].revenue - a[1].revenue; }).map(function(s, i) {
+      return { label: s[0], value: s[1].revenue, color: COLORS[i % COLORS.length] };
+    });
+    renderBarChart('barReceitaServicos', svcItems);
+
+    // Table
+    var tbl = '<thead><tr><th>Data</th><th>Horario</th><th>Cliente</th><th>Servico</th><th>Barbeiro</th><th>Valor</th></tr></thead><tbody>';
+    gBookings.slice().reverse().slice(0, 50).forEach(function(b) {
+      var t = bookingTotal(b);
+      tbl += '<tr><td>' + fmtDateFull(b.date) + '</td><td>' + b.time_slot + '</td><td>' + esc(b.customer_name) + '</td><td>' + esc(b.service) + '</td><td>' + esc(b.barber) + '</td><td class="val-pos">R$ ' + t + '</td></tr>';
+    });
+    tbl += '<tr class="row-total"><td colspan="5">TOTAL SERVICOS</td><td class="val-accent">R$ ' + recServicos + '</td></tr>';
+    tbl += '</tbody>';
+    document.getElementById('receitaTable').innerHTML = tbl;
+  }
+
+  // ===== DESPESAS =====
+  function renderDespesas() {
+    var catTotals = {}, total = 0;
+    gExpenses.forEach(function(e) {
+      total += e.amount;
+      catTotals[e.category] = (catTotals[e.category] || 0) + e.amount;
+    });
+
+    document.getElementById('expTotalLabel').innerHTML = '<span style="color:#f44336;">Total: R$ ' + total + '</span>';
+
+    // Bar chart
+    var catItems = Object.entries(catTotals).sort(function(a,b) { return b[1]-a[1]; }).map(function(c, i) {
+      return { label: c[0].charAt(0).toUpperCase() + c[0].slice(1), value: c[1], color: COLORS[i % COLORS.length] };
+    });
+    renderBarChart('barExpCat', catItems);
+
+    // Donut
+    var donutItems = catItems.map(function(c) { return { label: c.label, value: c.value, color: c.color }; });
+    renderDonut('donutExpCat', donutItems, 'R$ ' + total, gExpenses.length + ' itens');
+
+    // Table
+    var tbl = '<thead><tr><th></th><th>Descricao</th><th>Categoria</th><th>Pagamento</th><th>Data</th><th>Valor</th><th></th></tr></thead><tbody>';
+    gExpenses.forEach(function(e) {
+      var icon = CAT_ICONS[e.category] || '&#128221;';
+      tbl += '<tr><td>' + icon + '</td><td>' + esc(e.description) + (e.recurring ? ' <span style="font-size:0.65rem;background:rgba(255,152,0,0.15);color:#ff9800;padding:2px 6px;border-radius:4px;">MENSAL</span>' : '') + (e.notes ? '<br><span style="font-size:0.72rem;color:var(--text-muted);">' + esc(e.notes) + '</span>' : '') + '</td><td>' + esc(e.category) + '</td><td>' + (PAY_LABELS[e.payment_method] || e.payment_method) + '</td><td>' + fmtDateFull(e.date) + '</td><td class="val-neg">- R$ ' + e.amount + '</td><td><button class="btn-del" onclick="deleteExp(\'' + e.id + '\')">&#128465;</button></td></tr>';
+    });
+    tbl += '<tr class="row-total"><td colspan="5">TOTAL</td><td class="val-accent">R$ ' + total + '</td><td></td></tr></tbody>';
+    document.getElementById('expTable').innerHTML = tbl;
+  }
+
+  // Save expense
+  document.getElementById('expSave').addEventListener('click', async function() {
+    var desc = document.getElementById('expDesc').value.trim();
+    var amount = parseInt(document.getElementById('expAmount').value) || 0;
+    if (!desc || !amount) { showMsg('expMsg', 'Preencha descricao e valor.', 'err'); return; }
+    var { error } = await sb.from('expenses').insert({
+      description: desc, amount: amount,
+      category: document.getElementById('expCat').value,
+      payment_method: document.getElementById('expPay').value,
+      date: document.getElementById('expDate').value,
+      recurring: document.getElementById('expRecur').value === '1',
+      notes: document.getElementById('expNotes').value.trim()
+    });
+    if (error) { showMsg('expMsg', 'Erro: ' + error.message, 'err'); return; }
+    showMsg('expMsg', 'Despesa salva!', 'ok');
+    document.getElementById('expDesc').value = '';
+    document.getElementById('expAmount').value = '';
+    document.getElementById('expNotes').value = '';
+    await loadAll();
+    renderDespesas();
+  });
+
+  window.deleteExp = async function(id) {
+    if (!confirm('Excluir despesa?')) return;
+    await sb.from('expenses').delete().eq('id', id);
+    await loadAll();
+    renderDespesas();
+  };
+
+  // ===== DRE =====
+  function renderDRE() {
+    var recServicos = 0, recProdutos = 0, totalComm = 0;
+    var despCats = {};
+
+    gBookings.forEach(function(b) { recServicos += bookingTotal(b); });
+    gSales.forEach(function(s) { recProdutos += s.total || 0; });
+
+    var commMap = {};
+    gComms.forEach(function(c) { commMap[c.barber] = c.percentage; });
+    gBookings.forEach(function(b) {
+      var t = bookingTotal(b);
+      var pct = commMap[b.barber] !== undefined ? commMap[b.barber] : 40;
+      totalComm += Math.round(t * pct / 100);
+    });
+
+    gExpenses.forEach(function(e) {
+      despCats[e.category] = (despCats[e.category] || 0) + e.amount;
+    });
+
+    var recBruta = recServicos + recProdutos;
+    var recLiquida = recBruta - totalComm;
+    var totalDesp = 0;
+    Object.values(despCats).forEach(function(v) { totalDesp += v; });
+    var lucroOp = recLiquida - totalDesp;
+    var margem = recBruta > 0 ? ((lucroOp / recBruta) * 100).toFixed(1) : '0.0';
+
+    var h = '<div style="max-width:700px;margin:0 auto;">';
+    h += '<div style="text-align:center;margin-bottom:24px;"><span style="font-family:var(--font-display);font-size:1.1rem;">Periodo: </span><span style="color:var(--red);">' + fmtDateFull(getDateRange().start) + ' a ' + fmtDateFull(getDateRange().end) + '</span></div>';
+
+    // Receita Bruta
+    h += '<div class="dre-section">';
+    h += '<div class="dre-header"><span>&#128176; RECEITA BRUTA</span><span class="val-pos">R$ ' + recBruta + '</span></div>';
+    h += '<div class="dre-row"><span>Receita de Servicos (' + gBookings.length + ' atend.)</span><span>R$ ' + recServicos + '</span></div>';
+    h += '<div class="dre-row"><span>Receita de Produtos (' + gSales.length + ' vendas)</span><span>R$ ' + recProdutos + '</span></div>';
+    h += '</div>';
+
+    // Deducoes
+    h += '<div class="dre-section">';
+    h += '<div class="dre-header"><span>&#128181; (-) COMISSOES BARBEIROS</span><span class="val-neg">- R$ ' + totalComm + '</span></div>';
+    h += '</div>';
+
+    // Receita Liquida
+    h += '<div class="dre-section">';
+    h += '<div class="dre-header" style="background:rgba(33,150,243,0.08);"><span>= RECEITA LIQUIDA</span><span style="color:var(--blue);font-weight:700;">R$ ' + recLiquida + '</span></div>';
+    h += '</div>';
+
+    // Despesas
+    h += '<div class="dre-section">';
+    h += '<div class="dre-header"><span>&#128200; (-) DESPESAS OPERACIONAIS</span><span class="val-neg">- R$ ' + totalDesp + '</span></div>';
+    Object.entries(despCats).sort(function(a,b) { return b[1]-a[1]; }).forEach(function(c) {
+      var icon = CAT_ICONS[c[0]] || '';
+      h += '<div class="dre-row"><span>' + icon + ' ' + c[0].charAt(0).toUpperCase() + c[0].slice(1) + '</span><span>- R$ ' + c[1] + '</span></div>';
+    });
+    h += '</div>';
+
+    // Resultado
+    var resColor = lucroOp >= 0 ? 'var(--green)' : '#f44336';
+    var resIcon = lucroOp >= 0 ? '&#128994;' : '&#128308;';
+    h += '<div class="dre-total"><span>' + resIcon + ' RESULTADO (LUCRO/PREJUIZO)</span><span style="color:' + resColor + ';">R$ ' + lucroOp + ' (' + margem + '%)</span></div>';
+    h += '</div>';
+
+    document.getElementById('dreContent').innerHTML = h;
+  }
+
+  // ===== FLUXO DE CAIXA =====
+  function renderFluxo() {
+    var days = {};
+    var r = getDateRange();
+    var d = new Date(r.start + 'T00:00:00');
+    var endD = new Date(r.end + 'T00:00:00');
+    for (; d <= endD; d.setDate(d.getDate() + 1)) {
+      days[d.toISOString().split('T')[0]] = { entrada: 0, saida: 0 };
+    }
+
+    gBookings.forEach(function(b) { if (days[b.date]) days[b.date].entrada += bookingTotal(b); });
+    gSales.forEach(function(s) { var day = s.created_at.split('T')[0]; if (days[day]) days[day].entrada += (s.total || 0); });
+    gExpenses.forEach(function(e) { if (days[e.date]) days[e.date].saida += (e.amount || 0); });
+
+    var entries = Object.entries(days);
+    var totalIn = 0, totalOut = 0;
+    entries.forEach(function(d) { totalIn += d[1].entrada; totalOut += d[1].saida; });
+    var saldo = totalIn - totalOut;
+
+    // KPI cards
+    var cards = '';
+    cards += kpiCard('kc-green', '&#128178;', 'R$ ' + totalIn, 'Total Entradas', '');
+    cards += kpiCard('kc-red', '&#128200;', 'R$ ' + totalOut, 'Total Saidas', '');
+    cards += kpiCard(saldo >= 0 ? 'kc-blue' : 'kc-red', '&#128176;', 'R$ ' + saldo, 'Saldo do Periodo', saldo >= 0 ? 'Positivo' : 'Negativo');
+    document.getElementById('fluxoCards').innerHTML = cards;
+
+    // Grouped bars (aggregate if too many days)
+    var showEntries = entries;
+    if (entries.length > 31) {
+      var weeks = {};
+      entries.forEach(function(d) {
+        var dt = new Date(d[0] + 'T00:00:00');
+        var ws = new Date(dt); ws.setDate(dt.getDate() - dt.getDay());
+        var wk = ws.toISOString().split('T')[0];
+        if (!weeks[wk]) weeks[wk] = { entrada: 0, saida: 0 };
+        weeks[wk].entrada += d[1].entrada; weeks[wk].saida += d[1].saida;
+      });
+      showEntries = Object.entries(weeks);
+    }
+
+    var max = 1;
+    showEntries.forEach(function(d) { max = Math.max(max, d[1].entrada, d[1].saida); });
+    var barsHtml = '';
+    showEntries.forEach(function(d) {
+      var eH = Math.max(3, Math.round((d[1].entrada / max) * 100));
+      var sH = Math.max(3, Math.round((d[1].saida / max) * 100));
+      barsHtml += '<div class="bar-group" style="gap:2px;"><div class="bar-val" style="font-size:0.55rem;">R$' + d[1].entrada + '</div><div style="display:flex;gap:2px;align-items:flex-end;width:100%;height:100%;"><div class="bar-fill" style="height:' + eH + '%;background:var(--green);flex:1;" title="Entrada: R$' + d[1].entrada + '"></div><div class="bar-fill" style="height:' + sH + '%;background:#f44336;flex:1;" title="Saida: R$' + d[1].saida + '"></div></div><div class="bar-label">' + fmtDate(d[0]) + '</div></div>';
+    });
+    document.getElementById('barFluxo').innerHTML = barsHtml || '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);">Sem dados</div>';
+
+    // Table with running balance
+    var tbl = '<thead><tr><th>Data</th><th>Entradas</th><th>Saidas</th><th>Resultado</th><th>Saldo Acumulado</th></tr></thead><tbody>';
+    var accum = 0;
+    entries.forEach(function(d) {
+      var res = d[1].entrada - d[1].saida;
+      accum += res;
+      if (d[1].entrada || d[1].saida) {
+        tbl += '<tr><td>' + fmtDateFull(d[0]) + '</td><td class="val-pos">+ R$ ' + d[1].entrada + '</td><td class="val-neg">- R$ ' + d[1].saida + '</td><td style="color:' + (res >= 0 ? 'var(--green)' : '#f44336') + ';font-weight:600;">R$ ' + res + '</td><td style="color:' + (accum >= 0 ? 'var(--blue)' : '#f44336') + ';font-weight:700;">R$ ' + accum + '</td></tr>';
+      }
+    });
+    tbl += '<tr class="row-total"><td>TOTAL</td><td class="val-pos">R$ ' + totalIn + '</td><td class="val-neg">R$ ' + totalOut + '</td><td class="val-accent">R$ ' + saldo + '</td><td style="font-weight:700;color:' + (accum >= 0 ? 'var(--blue)' : '#f44336') + ';">R$ ' + accum + '</td></tr></tbody>';
+    document.getElementById('fluxoTable').innerHTML = tbl;
+  }
+
+  // ===== COMISSOES =====
+  function renderComissoes() {
+    var commMap = {};
+    gComms.forEach(function(c) { commMap[c.barber] = c.percentage; });
+
+    var barbers = {};
+    gBookings.forEach(function(b) {
+      var name = b.barber || '?';
+      if (!barbers[name]) barbers[name] = { revenue: 0, count: 0 };
+      barbers[name].revenue += bookingTotal(b);
+      barbers[name].count++;
+    });
+
+    var allBarbers = ['Barbeiro 1','Barbeiro 2','Barbeiro 3','Barbeiro 4','Barbeiro 5','Barbeiro 6','Barbeiro 7','Barbeiro 8'];
+    // Include any barber not in default list
+    Object.keys(barbers).forEach(function(b) { if (allBarbers.indexOf(b) === -1) allBarbers.push(b); });
+
+    var tbl = '<thead><tr><th>Barbeiro</th><th>%</th><th>Atendimentos</th><th>Receita Bruta</th><th>Comissao</th><th>Receita Loja</th></tr></thead><tbody>';
+    var gRev = 0, gComm = 0, gLoja = 0, gCount = 0;
+    var barItems = [], donutItems = [];
+
+    allBarbers.forEach(function(name, i) {
+      var pct = commMap[name] !== undefined ? commMap[name] : 40;
+      var data = barbers[name] || { revenue: 0, count: 0 };
+      var comm = Math.round(data.revenue * pct / 100);
+      var loja = data.revenue - comm;
+      gRev += data.revenue; gComm += comm; gLoja += loja; gCount += data.count;
+
+      tbl += '<tr><td style="font-weight:600;">' + esc(name) + '</td><td><input type="number" min="0" max="100" value="' + pct + '" data-barber="' + name + '" class="comm-pct-input" style="width:55px;padding:5px 8px;background:var(--dark);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:0.82rem;text-align:center;outline:none;"></td><td>' + data.count + '</td><td>R$ ' + data.revenue + '</td><td style="color:var(--orange);font-weight:600;">R$ ' + comm + '</td><td style="color:var(--green);">R$ ' + loja + '</td></tr>';
+
+      if (data.revenue > 0) {
+        barItems.push({ label: name.replace('Barbeiro ', 'B'), value: comm, color: COLORS[i % COLORS.length] });
+        donutItems.push({ label: name, value: comm, color: COLORS[i % COLORS.length] });
+      }
+    });
+
+    tbl += '<tr class="row-total"><td>TOTAL</td><td></td><td>' + gCount + '</td><td class="val-accent">R$ ' + gRev + '</td><td style="color:var(--orange);font-weight:700;">R$ ' + gComm + '</td><td style="color:var(--green);font-weight:700;">R$ ' + gLoja + '</td></tr></tbody>';
+    document.getElementById('commTable').innerHTML = tbl;
+
+    renderBarChart('barComm', barItems);
+    renderDonut('donutComm', donutItems, 'R$ ' + gComm, 'Comissoes');
+  }
+
+  // Save commissions
+  document.getElementById('commSaveBtn').addEventListener('click', async function() {
+    var inputs = document.querySelectorAll('.comm-pct-input');
+    var promises = [];
+    inputs.forEach(function(inp) {
+      var barber = inp.getAttribute('data-barber');
+      var pct = parseInt(inp.value) || 40;
+      promises.push(sb.from('commissions').upsert({ barber: barber, percentage: pct }, { onConflict: 'barber' }));
+    });
+    await Promise.all(promises);
+    showMsg('commMsg', 'Comissoes salvas!', 'ok');
+    var { data } = await sb.from('commissions').select('*');
+    gComms = data || [];
+    renderComissoes();
+  });
+
+  // ===== METAS =====
+  function renderMetas() {
+    var savedMetas = JSON.parse(localStorage.getItem('ns_metas') || '{}');
+    var metaRec = savedMetas.receita || 0;
+    var metaAt = savedMetas.atendimentos || 0;
+    if (metaRec) document.getElementById('metaReceita').value = metaRec;
+    if (metaAt) document.getElementById('metaAtend').value = metaAt;
+
+    var recTotal = 0, atend = 0;
+    gBookings.forEach(function(b) { recTotal += bookingTotal(b); atend++; });
+    gSales.forEach(function(s) { recTotal += s.total || 0; });
+
+    var h = '';
+
+    if (metaRec > 0) {
+      var pctRec = Math.min(100, Math.round((recTotal / metaRec) * 100));
+      var hit = pctRec >= 100;
+      h += '<div class="goal-card animate-in"><div class="goal-header"><div><div class="goal-title">&#128176; Meta de Receita</div></div><div class="goal-pct" style="color:' + (hit ? 'var(--green)' : 'var(--red)') + ';">' + pctRec + '%</div></div><div class="goal-bar"><div class="goal-bar-fill' + (hit ? ' hit' : '') + '" style="width:' + pctRec + '%;"></div></div><div class="goal-detail"><span>Atual: R$ ' + recTotal + '</span><span>Meta: R$ ' + metaRec + '</span><span>Falta: R$ ' + Math.max(0, metaRec - recTotal) + '</span></div></div>';
+    }
+
+    if (metaAt > 0) {
+      var pctAt = Math.min(100, Math.round((atend / metaAt) * 100));
+      var hitAt = pctAt >= 100;
+      h += '<div class="goal-card animate-in"><div class="goal-header"><div><div class="goal-title">&#9989; Meta de Atendimentos</div></div><div class="goal-pct" style="color:' + (hitAt ? 'var(--green)' : 'var(--red)') + ';">' + pctAt + '%</div></div><div class="goal-bar"><div class="goal-bar-fill' + (hitAt ? ' hit' : '') + '" style="width:' + pctAt + '%;"></div></div><div class="goal-detail"><span>Atual: ' + atend + '</span><span>Meta: ' + metaAt + '</span><span>Falta: ' + Math.max(0, metaAt - atend) + '</span></div></div>';
+    }
+
+    if (!metaRec && !metaAt) {
+      h = '<div class="chart-box" style="text-align:center;padding:60px 20px;"><div style="font-size:2rem;margin-bottom:12px;">&#127919;</div><div style="color:var(--text-muted);">Defina suas metas acima para acompanhar o progresso.</div></div>';
+    }
+
+    document.getElementById('metaCards').innerHTML = h;
+  }
+
+  document.getElementById('metaSave').addEventListener('click', function() {
+    var metas = {
+      receita: parseInt(document.getElementById('metaReceita').value) || 0,
+      atendimentos: parseInt(document.getElementById('metaAtend').value) || 0
+    };
+    localStorage.setItem('ns_metas', JSON.stringify(metas));
+    showMsg('metaMsg', 'Metas salvas!', 'ok');
+    renderMetas();
+  });
+
+  // ===== UTILS =====
+  function showMsg(id, text, type) {
+    var el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'msg ' + type;
+    el.style.display = 'block';
+    setTimeout(function() { el.style.display = 'none'; }, 3000);
+  }
+</script>
+</body>
+</html>

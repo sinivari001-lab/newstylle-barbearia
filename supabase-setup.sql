@@ -86,7 +86,131 @@ CREATE POLICY "Vendas inseríveis" ON sales FOR INSERT WITH CHECK (true);
 CREATE INDEX IF NOT EXISTS idx_sales_date ON sales(created_at);
 CREATE INDEX IF NOT EXISTS idx_sales_barber ON sales(barber);
 
--- 8. Visualizacao da agenda do dia (util para os barbeiros)
+-- 8. Tabela de despesas
+CREATE TABLE IF NOT EXISTS expenses (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  description TEXT NOT NULL,
+  amount INTEGER NOT NULL,
+  category TEXT NOT NULL CHECK (category IN ('aluguel', 'produtos', 'equipamentos', 'agua', 'luz', 'internet', 'manutencao', 'marketing', 'impostos', 'salarios', 'outros')),
+  payment_method TEXT DEFAULT 'pix' CHECK (payment_method IN ('dinheiro', 'pix', 'debito', 'credito', 'boleto', 'transferencia')),
+  date DATE NOT NULL DEFAULT CURRENT_DATE,
+  recurring BOOLEAN DEFAULT false,
+  notes TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE expenses ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Despesas visiveis" ON expenses FOR SELECT USING (true);
+CREATE POLICY "Despesas inseriveis" ON expenses FOR INSERT WITH CHECK (true);
+CREATE POLICY "Despesas atualizaveis" ON expenses FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "Despesas deletaveis" ON expenses FOR DELETE USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(date);
+CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category);
+
+-- 9. Tabela de comissoes
+CREATE TABLE IF NOT EXISTS commissions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  barber TEXT NOT NULL,
+  percentage INTEGER NOT NULL DEFAULT 40,
+  active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(barber)
+);
+
+ALTER TABLE commissions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Comissoes visiveis" ON commissions FOR SELECT USING (true);
+CREATE POLICY "Comissoes inseriveis" ON commissions FOR INSERT WITH CHECK (true);
+CREATE POLICY "Comissoes atualizaveis" ON commissions FOR UPDATE USING (true) WITH CHECK (true);
+
+-- 10. Tabela de barbeiros (login individual)
+CREATE TABLE IF NOT EXISTS barber_accounts (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE barber_accounts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Barber accounts visiveis" ON barber_accounts FOR SELECT USING (true);
+CREATE POLICY "Barber accounts inseriveis" ON barber_accounts FOR INSERT WITH CHECK (true);
+CREATE POLICY "Barber accounts atualizaveis" ON barber_accounts FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "Barber accounts deletaveis" ON barber_accounts FOR DELETE USING (true);
+
+-- 11. Inserir contas de barbeiros (senhas padrao)
+INSERT INTO barber_accounts (name, password) VALUES
+  ('Barbeiro 1', 'barb01'),
+  ('Barbeiro 2', 'barb02'),
+  ('Barbeiro 3', 'barb03'),
+  ('Barbeiro 4', 'barb04'),
+  ('Barbeiro 5', 'barb05'),
+  ('Barbeiro 6', 'barb06'),
+  ('Barbeiro 7', 'barb07'),
+  ('Barbeiro 8', 'barb08')
+ON CONFLICT (name) DO NOTHING;
+
+-- 12. Inserir comissoes padrao (40%)
+INSERT INTO commissions (barber, percentage) VALUES
+  ('Barbeiro 1', 40), ('Barbeiro 2', 40), ('Barbeiro 3', 40), ('Barbeiro 4', 40),
+  ('Barbeiro 5', 40), ('Barbeiro 6', 40), ('Barbeiro 7', 40), ('Barbeiro 8', 40)
+ON CONFLICT (barber) DO NOTHING;
+
+-- 13. Tabela de notas/observacoes de clientes (CRM)
+CREATE TABLE IF NOT EXISTS customer_notes (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  customer_phone TEXT UNIQUE NOT NULL,
+  customer_name TEXT DEFAULT '',
+  notes TEXT DEFAULT '',
+  birthday TEXT DEFAULT '',
+  tags TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE customer_notes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Notas visiveis" ON customer_notes FOR SELECT USING (true);
+CREATE POLICY "Notas inseriveis" ON customer_notes FOR INSERT WITH CHECK (true);
+CREATE POLICY "Notas atualizaveis" ON customer_notes FOR UPDATE USING (true) WITH CHECK (true);
+
+CREATE INDEX IF NOT EXISTS idx_customer_notes_phone ON customer_notes(customer_phone);
+
+-- 14. Tabela de planos/assinaturas
+CREATE TABLE IF NOT EXISTS plans (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  price INTEGER NOT NULL,
+  description TEXT DEFAULT '',
+  active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE plans ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Planos visiveis" ON plans FOR SELECT USING (true);
+CREATE POLICY "Planos inseriveis" ON plans FOR INSERT WITH CHECK (true);
+CREATE POLICY "Planos atualizaveis" ON plans FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "Planos deletaveis" ON plans FOR DELETE USING (true);
+
+-- 15. Tabela de assinaturas de clientes
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  customer_name TEXT NOT NULL,
+  customer_phone TEXT NOT NULL,
+  plan_id UUID REFERENCES plans(id),
+  start_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  status TEXT DEFAULT 'active' CHECK (status IN ('active', 'cancelled', 'expired', 'pending')),
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Assinaturas visiveis" ON subscriptions FOR SELECT USING (true);
+CREATE POLICY "Assinaturas inseriveis" ON subscriptions FOR INSERT WITH CHECK (true);
+CREATE POLICY "Assinaturas atualizaveis" ON subscriptions FOR UPDATE USING (true) WITH CHECK (true);
+
+CREATE INDEX IF NOT EXISTS idx_subscriptions_status ON subscriptions(status);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_phone ON subscriptions(customer_phone);
+
+-- 16. Visualizacao da agenda do dia (util para os barbeiros)
 CREATE OR REPLACE VIEW agenda_do_dia AS
 SELECT
   barber AS barbeiro,
