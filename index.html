@@ -7016,8 +7016,17 @@
 
     // ===== FIDELIDADE MODULE =====
     async function loyaltyLoad() {
-      var target = parseInt(localStorage.getItem('ns_loyalty_target') || '4');
-      var birthday = parseInt(localStorage.getItem('ns_loyalty_birthday') || '20');
+      var target = 4, birthday = 20;
+      if (supabaseClient) {
+        try {
+          var { data: cfgRow } = await supabaseClient.from('customer_notes').select('notes').eq('customer_phone', '__CONFIG__').single();
+          if (cfgRow && cfgRow.notes) {
+            var cfg = JSON.parse(cfgRow.notes);
+            target = cfg.loyalty_target || 4;
+            birthday = cfg.loyalty_birthday || 20;
+          }
+        } catch(e) {}
+      }
       document.getElementById('loyaltyTarget').value = target;
       document.getElementById('loyaltyBirthday').value = birthday;
 
@@ -7064,7 +7073,7 @@
         var isReady = progress === 0 && c.visits > 0 && completedCycles > 0;
         html += '<div class="loyalty-client">' +
           '<div class="loyalty-info"><div class="loyalty-name">' + adminEsc(c.name) + ' ' + rewardText + '</div>' +
-          '<div class="loyalty-sub">' + c.phone + ' · ' + c.visits + ' cortes · ultimo: ' + c.lastVisit + '</div></div>' +
+          '<div class="loyalty-sub">' + c.phone + ' · ' + (c.visits > 0 ? c.visits + ' cortes · ultimo: ' + c.lastVisit : 'Aguardando atendimento') + '</div></div>' +
           '<div class="loyalty-dots">' + dotsHtml + '</div>' +
           '</div>';
       });
@@ -7073,9 +7082,18 @@
     }
 
     if (document.getElementById('loyaltySaveConfig')) {
-      document.getElementById('loyaltySaveConfig').addEventListener('click', function() {
-        localStorage.setItem('ns_loyalty_target', document.getElementById('loyaltyTarget').value);
-        localStorage.setItem('ns_loyalty_birthday', document.getElementById('loyaltyBirthday').value);
+      document.getElementById('loyaltySaveConfig').addEventListener('click', async function() {
+        var newTarget = parseInt(document.getElementById('loyaltyTarget').value) || 4;
+        var newBirthday = parseInt(document.getElementById('loyaltyBirthday').value) || 20;
+        if (supabaseClient) {
+          try {
+            await supabaseClient.from('customer_notes').upsert({
+              customer_phone: '__CONFIG__',
+              customer_name: 'site_config',
+              notes: JSON.stringify({ loyalty_target: newTarget, loyalty_birthday: newBirthday })
+            }, { onConflict: 'customer_phone' });
+          } catch(e) { console.error('Config save error:', e); }
+        }
         loyaltyLoad();
         alert('Configuracao salva!');
       });
