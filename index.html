@@ -2281,6 +2281,7 @@
       animation: tourSlideUp .35s ease;
     }
     @keyframes tourSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideInRight { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
     .tour-icon { font-size: 2.8rem; margin-bottom: 12px; }
     .tour-step-label {
       font-size: .7rem; text-transform: uppercase; letter-spacing: 2px;
@@ -4454,6 +4455,27 @@
         adminSwitchTab('agenda');
         adminLoad();
 
+        // Realtime: alerta quando agendamento é cancelado ou criado
+        if (supabaseClient && !window._realtimeSub) {
+          window._realtimeSub = supabaseClient.channel('bookings-changes')
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bookings' }, function(payload) {
+              var n = payload.new;
+              var o = payload.old;
+              if (n.status === 'cancelled' && o.status !== 'cancelled') {
+                var [y,m,d] = (n.date||'').split('-');
+                showAdminAlert('Agendamento cancelado!', n.customer_name + ' cancelou ' + (n.service||'') + ' às ' + (n.time_slot||'') + ' (' + (d||'')+'/'+( m||'')+'/'+(y||'') + ')', 'cancel');
+                adminLoad();
+              }
+            })
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, function(payload) {
+              var n = payload.new;
+              var [y,m,d] = (n.date||'').split('-');
+              showAdminAlert('Novo agendamento!', n.customer_name + ' agendou ' + (n.service||'') + ' às ' + (n.time_slot||'') + ' (' + (d||'')+'/'+( m||'')+'/'+(y||'') + ')', 'new');
+              adminLoad();
+            })
+            .subscribe();
+        }
+
         // Botão de replay tour (recepção e dono)
         var btnTour = document.getElementById('btnReplayTour');
         if (role === 'recepcao') {
@@ -5537,6 +5559,50 @@
       };
 
       window.adminEsc = function(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; };
+
+      // Alerta visual + sonoro para eventos em tempo real
+      window.showAdminAlert = function(title, msg, type) {
+        // Som de alerta
+        try {
+          var ctx = new (window.AudioContext || window.webkitAudioContext)();
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination);
+          gain.gain.value = 0.15;
+          if (type === 'cancel') {
+            osc.frequency.value = 440; osc.type = 'sine';
+            osc.start(); osc.stop(ctx.currentTime + 0.15);
+            setTimeout(function() {
+              var o2 = ctx.createOscillator(); var g2 = ctx.createGain();
+              o2.connect(g2); g2.connect(ctx.destination); g2.gain.value = 0.15;
+              o2.frequency.value = 330; o2.type = 'sine'; o2.start(); o2.stop(ctx.currentTime + 0.2);
+            }, 180);
+          } else {
+            osc.frequency.value = 523; osc.type = 'sine';
+            osc.start(); osc.stop(ctx.currentTime + 0.1);
+            setTimeout(function() {
+              var o2 = ctx.createOscillator(); var g2 = ctx.createGain();
+              o2.connect(g2); g2.connect(ctx.destination); g2.gain.value = 0.15;
+              o2.frequency.value = 659; o2.type = 'sine'; o2.start(); o2.stop(ctx.currentTime + 0.1);
+            }, 120);
+            setTimeout(function() {
+              var o3 = ctx.createOscillator(); var g3 = ctx.createGain();
+              o3.connect(g3); g3.connect(ctx.destination); g3.gain.value = 0.15;
+              o3.frequency.value = 784; o3.type = 'sine'; o3.start(); o3.stop(ctx.currentTime + 0.15);
+            }, 240);
+          }
+        } catch(e) {}
+        // Toast visual
+        var toast = document.createElement('div');
+        var bg = type === 'cancel' ? 'linear-gradient(135deg, #d32f2f, #f44336)' : 'linear-gradient(135deg, #2e7d32, #4caf50)';
+        var icon = type === 'cancel' ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>' : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>';
+        toast.style.cssText = 'position:fixed;top:20px;right:20px;z-index:99999;background:' + bg + ';color:#fff;padding:16px 20px;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);max-width:360px;animation:slideInRight 0.4s ease;display:flex;gap:12px;align-items:flex-start;cursor:pointer;';
+        toast.innerHTML = '<div style="flex-shrink:0;margin-top:2px;">' + icon + '</div><div><div style="font-weight:700;font-size:0.95rem;margin-bottom:4px;">' + title + '</div><div style="font-size:0.82rem;opacity:0.9;">' + msg + '</div></div>';
+        toast.onclick = function() { toast.remove(); };
+        document.body.appendChild(toast);
+        // Auto-remove after 8s
+        setTimeout(function() { if (toast.parentNode) { toast.style.opacity = '0'; toast.style.transform = 'translateX(100px)'; toast.style.transition = 'all 0.4s'; setTimeout(function() { toast.remove(); }, 400); } }, 8000);
+      };
 
       // Auto-refresh a cada 30s
       setInterval(() => { if (sessionStorage.getItem('ns_admin') === 'true') adminLoad(); }, 30000);
