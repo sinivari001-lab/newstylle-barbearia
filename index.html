@@ -4457,14 +4457,19 @@
         adminSwitchTab('agenda');
         adminLoad();
 
-        // Botão de replay tour (só recepção)
+        // Botão de replay tour (recepção e dono)
         var btnTour = document.getElementById('btnReplayTour');
         if (role === 'recepcao') {
           btnTour.style.display = '';
           btnTour.onclick = function() { startRecepcaoTour(); };
-          // Tour guiado na primeira vez
           if (!localStorage.getItem('ns_tour_recepcao')) {
             setTimeout(function() { startRecepcaoTour(); }, 600);
+          }
+        } else if (role === 'owner') {
+          btnTour.style.display = '';
+          btnTour.onclick = function() { startDonoTour(); };
+          if (!localStorage.getItem('ns_tour_dono')) {
+            setTimeout(function() { startDonoTour(); }, 600);
           }
         } else {
           btnTour.style.display = 'none';
@@ -4619,6 +4624,130 @@
         function closeTour() {
           clearHighlight();
           localStorage.setItem('ns_tour_recepcao', '1');
+          var el = document.getElementById('tourOverlay');
+          if (el) el.remove();
+          adminSwitchTab('agenda');
+        }
+
+        renderTour();
+      }
+
+      // ===== TOUR GUIADO - DONO =====
+      function startDonoTour() {
+        var steps = [
+          // === BEM-VINDO ===
+          { tab: 'agenda', el: 'adminRoleLabel', title: 'Bem-vindo, Dono!', desc: 'Vou te mostrar todas as funcionalidades do sistema. Você tem acesso completo a tudo: agenda, financeiro, gestão de equipe e mais. Clique em "Próximo" pra começar.' },
+          // === AGENDA ===
+          { tab: 'agenda', el: 'tabAgenda', title: 'Aba Agenda', desc: 'Visão geral de todos os agendamentos do dia. Cada coluna é um barbeiro, cada linha é um horário. Clique num agendamento pra ver detalhes, confirmar ou concluir.' },
+          { tab: 'agenda', el: 'agGridDateLabel', title: 'Navegação de data', desc: 'Use as setas < e > pra navegar entre os dias. O botão HOJE volta pro dia atual.' },
+          { tab: 'agenda', el: 'aTotal', title: 'Resumo do dia', desc: 'Total de agendamentos, pendentes, confirmados e faturamento do dia. Você vê tudo de todos os barbeiros.' },
+          // === +ATENDIMENTO ===
+          { tab: 'walkin', el: 'tabWalkin', title: '+Atendimento (Walk-in)', desc: 'Cadastre clientes que chegam sem agendamento. Preencha nome, WhatsApp, serviço e barbeiro.' },
+          // === REMARKETING ===
+          { tab: 'remarketing', el: 'tabRmk', title: 'Remarketing', desc: 'Lista de clientes que não voltam há X dias. Envie mensagem pelo WhatsApp pra chamá-los de volta. Filtre por 7, 15, 30, 45 ou 60+ dias.' },
+          // === RANKING ===
+          { tab: 'ranking', el: 'tabRank', title: 'Ranking', desc: 'Compare o desempenho dos barbeiros: quem atendeu mais e quem faturou mais. Filtre por diário, semanal ou mensal.' },
+          // === VENDAS (PDV) ===
+          { tab: 'pdv', el: 'tabPdv', title: 'Vendas (PDV)', desc: 'Registre vendas de produtos (pomada, shampoo, etc). Selecione produto, barbeiro e forma de pagamento. Conta na comissão.' },
+          // === CLIENTES (CRM) ===
+          { tab: 'crm', el: 'tabCrm', title: 'Clientes (CRM)', desc: 'Histórico completo de todos os clientes: quantas visitas, quanto gastou, último corte, serviço favorito. Clique no cliente pra ver a ficha e adicionar observações.' },
+          // === FIDELIDADE ===
+          { tab: 'loyalty', el: 'tabLoyalty', title: 'Fidelidade', desc: 'Configure o programa de fidelidade: quantos cortes pra ganhar 1 grátis. Acompanhe quem está perto de resgatar.' },
+          // === PLANOS ===
+          { tab: 'plans', el: 'tabPlans', title: 'Planos (Assinaturas)', desc: 'Crie planos mensais pros clientes (ex: 4 cortes por R$ 100/mês). Controle assinaturas ativas e cortes usados.' },
+          // === FINANCEIRO ===
+          { tab: 'financeiro', el: 'tabFin', title: 'Financeiro', desc: 'O coração da gestão! Veja faturamento, comissões dos barbeiros, despesas e lucro líquido. Tudo calculado automaticamente.' },
+          { tab: 'financeiro', el: 'finKpiGrid', title: 'Cards de Resumo', desc: 'Faturamento bruto, despesas, comissões e lucro líquido do período selecionado. Os valores são calculados em tempo real.' },
+          { tab: 'financeiro', el: 'finSubTabs', title: 'Sub-abas do Financeiro', desc: 'Dashboard pra visão geral, Despesas pra cadastrar gastos (aluguel, luz, produtos), e Comissões pra ver quanto cada barbeiro vai receber.' },
+          // === CONTABILIDADE ===
+          { tab: 'contabilidade', el: 'tabContab', title: 'Contabilidade', desc: 'DRE simplificado, simulador de impostos (Simples Nacional) e relatórios fiscais. Tudo pronto pra mandar pro contador.' },
+          // === GERENCIAR ===
+          { tab: 'gerenciar', el: 'tabGerenciar', title: 'Gerenciar', desc: 'Configurações do sistema: cadastre barbeiros, defina comissões, gerencie senhas de acesso e configure serviços e preços.' },
+          // === BOTÕES DO TOPO ===
+          { tab: 'agenda', el: 'btnReplayTour', title: 'Botão "Quero aprender"', desc: 'Se precisar ver esse tour de novo, é só clicar nesse botão aqui.' },
+          // === FIM ===
+          { tab: 'agenda', el: 'adminRoleLabel', title: 'Pronto! Você conhece tudo!', desc: 'Agora é só usar o sistema. Se tiver dúvida, clique em "Quero aprender". Bom trabalho, chefe!' }
+        ];
+
+        var currentStep = 0;
+        var prevHighlight = null;
+
+        function clearHighlight() {
+          if (prevHighlight) {
+            prevHighlight.style.outline = '';
+            prevHighlight.style.outlineOffset = '';
+            prevHighlight.style.boxShadow = prevHighlight._tourShadow || '';
+            prevHighlight.style.zIndex = '';
+            prevHighlight.style.position = prevHighlight._tourPos || '';
+            prevHighlight.style.borderRadius = prevHighlight._tourRadius || '';
+            delete prevHighlight._tourPos;
+            delete prevHighlight._tourShadow;
+            delete prevHighlight._tourRadius;
+            prevHighlight = null;
+          }
+          var dim = document.getElementById('tourDimmer');
+          if (dim) dim.remove();
+        }
+
+        function renderTour() {
+          clearHighlight();
+          var existing = document.getElementById('tourOverlay');
+          if (existing) existing.remove();
+          var s = steps[currentStep];
+          if (s.tab) adminSwitchTab(s.tab);
+          var dimmer = document.createElement('div');
+          dimmer.id = 'tourDimmer';
+          dimmer.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99998;pointer-events:none;';
+          document.body.appendChild(dimmer);
+          var target = document.getElementById(s.el);
+          if (target) {
+            target._tourPos = target.style.position;
+            target._tourShadow = target.style.boxShadow;
+            target._tourRadius = target.style.borderRadius;
+            target.style.position = 'relative';
+            target.style.zIndex = '100000';
+            target.style.outline = '3px solid var(--red)';
+            target.style.outlineOffset = '6px';
+            target.style.boxShadow = '0 0 0 4000px rgba(0,0,0,0.6), 0 0 30px rgba(230,57,70,0.5)';
+            target.style.borderRadius = '8px';
+            prevHighlight = target;
+            setTimeout(function() { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 50);
+          }
+          var isFirst = currentStep === 0;
+          var isLast = currentStep === steps.length - 1;
+          var pct = Math.round(((currentStep + 1) / steps.length) * 100);
+          var progressBar = '<div style="width:100%;height:4px;background:rgba(255,255,255,0.1);border-radius:4px;margin-bottom:12px;overflow:hidden;"><div style="width:' + pct + '%;height:100%;background:var(--red);border-radius:4px;transition:width 0.3s;"></div></div>';
+          var btns = '';
+          if (!isFirst) btns += '<button class="tour-btn tour-btn-prev" id="tourPrev" style="padding:10px 18px;">&#9664; Anterior</button>';
+          btns += '<button class="tour-btn tour-btn-skip" id="tourSkip" style="padding:10px 14px;font-size:0.78rem;">Pular</button>';
+          btns += '<button class="tour-btn tour-btn-next" id="tourNext" style="padding:10px 22px;background:linear-gradient(135deg,var(--red),var(--red-dark));">' + (isLast ? '&#10004; Entendi!' : 'Próximo &#9654;') + '</button>';
+          var arrow = '<div style="width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:10px solid rgba(20,20,30,0.97);margin:0 auto -1px;"></div>';
+          var overlay = document.createElement('div');
+          overlay.id = 'tourOverlay';
+          overlay.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:100001;padding:8px 12px 12px;';
+          overlay.innerHTML = arrow +
+            '<div style="max-width:460px;margin:0 auto;background:rgba(20,20,30,0.97);border:1px solid rgba(230,57,70,0.4);border-radius:14px;padding:16px 20px 14px;box-shadow:0 -8px 40px rgba(0,0,0,0.6);">' +
+              progressBar +
+              '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
+                '<span style="font-weight:700;font-size:1.05rem;color:var(--red);">' + s.title + '</span>' +
+                '<span style="color:rgba(255,255,255,0.4);font-size:0.75rem;font-weight:600;">' + (currentStep + 1) + ' de ' + steps.length + '</span>' +
+              '</div>' +
+              '<div style="font-size:0.88rem;line-height:1.65;color:#ddd;margin-bottom:14px;">' + s.desc + '</div>' +
+              '<div style="display:flex;gap:8px;justify-content:center;">' + btns + '</div>' +
+            '</div>';
+          document.body.appendChild(overlay);
+          document.getElementById('tourNext').addEventListener('click', function() {
+            if (isLast) closeTour(); else { currentStep++; renderTour(); }
+          });
+          if (!isFirst) {
+            document.getElementById('tourPrev').addEventListener('click', function() { currentStep--; renderTour(); });
+          }
+          document.getElementById('tourSkip').addEventListener('click', closeTour);
+        }
+
+        function closeTour() {
+          clearHighlight();
+          localStorage.setItem('ns_tour_dono', '1');
           var el = document.getElementById('tourOverlay');
           if (el) el.remove();
           adminSwitchTab('agenda');
