@@ -1940,6 +1940,35 @@
       .booking-steps { gap: 1px; }
       .booking-step-num { width: 22px; height: 22px; font-size: 0.6rem; }
       .booking-step-line { width: 6px; }
+      .ag-legend { gap: 4px; padding: 8px 10px; }
+      .ag-legend-item { padding: 4px 8px; font-size: 0.65rem; }
+      .fin-grid { grid-template-columns: 1fr !important; }
+    }
+
+    /* ===== RESPONSIVE: Alertas, popups, editor, tour ===== */
+    @media (max-width: 600px) {
+      #nsAlertContainer { top: 10px; right: 10px; left: 10px; }
+      .ns-alert-toast { max-width: 100% !important; font-size: 0.82rem; padding: 12px 14px !important; border-radius: 10px !important; }
+      .ag-legend { gap: 6px; padding: 8px 12px; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+      .ag-legend-item { padding: 5px 10px; font-size: 0.7rem; gap: 4px; white-space: nowrap; flex-shrink: 0; }
+      .ag-legend-dot { width: 8px; height: 8px; }
+      .ag-grid-table th { padding: 10px 4px; font-size: 0.65rem; }
+      .ag-grid-table td.ag-time { width: 45px; min-width: 45px; font-size: 0.65rem; padding: 4px 4px; }
+      .ag-cell-booking { font-size: 0.7rem; padding: 3px 4px; }
+      .ag-cell-booking .ag-bk-name { font-size: 0.7rem; }
+      .ag-cell-booking .ag-bk-svc { font-size: 0.6rem; }
+      .fin-commission-table th { padding: 8px 6px; font-size: 0.62rem; }
+      .fin-commission-table td { padding: 8px 6px; }
+      .fin-tab-sub { padding: 7px 12px; font-size: 0.68rem; }
+      .tour-btn { padding: 8px 14px !important; font-size: 0.78rem; }
+      #tourOverlay > div > div { padding: 14px 16px 12px !important; }
+    }
+    @media (max-width: 480px) {
+      .ag-legend { gap: 4px; padding: 6px 8px; }
+      .ag-legend-item { padding: 4px 8px; font-size: 0.65rem; }
+      .fin-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+      .fin-card-value { font-size: 1.1rem !important; }
+      .fin-card-label { font-size: 0.62rem !important; }
     }
 
     /* Booking nav buttons */
